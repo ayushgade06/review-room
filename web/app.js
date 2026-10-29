@@ -57,7 +57,7 @@ function hero() {
   $("#hud-l").textContent = `${pts(S.median_L, 2)} pts`;
   $("#hud-p").textContent = pStarTxt(live.median_p_star);
   $("#hud-o").textContent = pct(S.upheld);
-  $("#lede").innerHTML = `A wicket in question typically swings <strong>${pts(S.median_G)} win-% points</strong>. A review held in reserve is typically worth <strong>${pts(S.median_L, 2)}</strong>. So in <strong>${pct(live.share_p_star_below_10, 0)}</strong> of ${S.n_reviews.toLocaleString()} real review decisions, a captain needed to be less than 10% sure the umpire was wrong for reviewing to pay.`;
+  $("#lede").innerHTML = `A wicket in question typically swings <strong>${pts(S.median_G)} win-% points</strong>. A review held in reserve is typically worth <strong>${pts(S.median_L, 2)}</strong>. So in <strong>${pct(live.share_p_star_below_10, 0)}</strong> of ${(S.n_reviews - S.decided_reviews).toLocaleString()} real review decisions with something at stake, a captain needed to be less than 10% sure the umpire was wrong for reviewing to pay.`;
   const tiles = [
     [S.n_reviews.toLocaleString(), `DRS reviews priced, from ${S.n_matches.toLocaleString()} matches in ${S.comps.length} competitions (${S.seasons[0]}–${S.seasons[1]})`],
     [pct(S.upheld), "of reviews overturn the on-field call"],
