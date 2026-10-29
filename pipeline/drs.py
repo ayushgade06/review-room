@@ -26,6 +26,26 @@ COVERAGE_MIN = 0.6  # comp-seasons where >=60% of matches carry review records c
 DECIDED_G = 0.002  # wicket worth < 0.2 WP points: match effectively decided, break-even undefined
 
 
+def clean(o):
+    """Recursively replace NaN/inf with None and numpy scalars with Python ones (strict JSON)."""
+    if isinstance(o, dict):
+        return {str(k): clean(v) for k, v in o.items()}
+    if isinstance(o, (list, tuple)):
+        return [clean(v) for v in o]
+    if isinstance(o, (np.integer,)):
+        return int(o)
+    if isinstance(o, (float, np.floating)):
+        return None if not np.isfinite(o) else float(o)
+    if isinstance(o, (np.bool_,)):
+        return bool(o)
+    return o
+
+
+def dump(obj, name, **kw):
+    with open(os.path.join(WEB, name), "w") as f:
+        json.dump(clean(obj), f, allow_nan=False, default=str, **kw)
+
+
 def wilson(k, n, z=1.96):
     if n == 0:
         return [None, None]
@@ -82,6 +102,7 @@ def main():
     rev["clean_fail"] = ((rev.upheld == 0) & ~rev.uc).astype(int)
     out_final = ((rev.rev_side == "bat") & (rev.upheld == 0)) | ((rev.rev_side == "bowl") & (rev.upheld == 1))
     w_notout = rev.wkts_before + rev.wickets - out_final.astype(int)
+    rev["w_notout"] = w_notout
     wp_no = wp_states(wp, rev, w_notout.to_numpy())
     wp_out = wp_states(wp, rev, (w_notout + 1).to_numpy())
     rev["G"] = np.clip(wp_no - wp_out, 0, 1)
@@ -303,11 +324,60 @@ def main():
                 tmap.append(dict(inning=int(r.inning), over=int(r.over), wp_bucket=int(r.wpb), role=role, k=k,
                                  G=float(r.mean), L=float(L), p_star=float(break_even(r.mean, L, s_uc[role])), n=int(r.size)))
 
+    # ---- curated scenarios (deterministic rules, 2024+ seasons, live states only) with WP worms
+    recent = rev[(rev.season >= 2024) & (rev.decided == 0)]
+    rules = [
+        ("swing_ipl", "The overturn that swung it", recent[(recent.upheld == 1) & (recent.comp == "IPL")], "G", False),
+        ("swing_t20i", "International: biggest overturn", recent[(recent.upheld == 1) & (recent.comp == "T20I")], "G", False),
+        ("found_wicket", "The wicket DRS found", recent[(recent.upheld == 1) & (recent.rev_side == "bowl") & (recent.comp != "IPL")], "G", False),
+        ("barely_mattered", "When the wicket barely mattered", recent[(recent.clean_fail == 1)], "p_star", False),
+        ("free_swing", "A miss that was still right", recent[(recent.clean_fail == 1) & (recent.over >= 16) & (recent.comp == "IPL")], "G", False),
+        ("umpires_call", "Saved by umpire's call", recent[recent.uc], "G", False),
+    ]
+    scen, used = [], set()
+    for sid, title, d, key, asc in rules:
+        d = d[~d.seq.isin(used)].sort_values(key, ascending=asc)
+        if len(d):
+            r = d.iloc[0]
+            used.add(r.seq)
+            scen.append(dict(id=sid, title=title, kind="review", seq=int(r.seq), match_id=r.match_id))
+    lw = lbw_with[lbw_with.season >= 2024].sort_values("G", ascending=False)
+    if len(lw):
+        scen.append(dict(id="never_taken", title="The review never taken", kind="unreviewed", seq=int(lw.iloc[0].seq),
+                         match_id=lw.iloc[0].match_id))
+    allrows = pd.concat([rev.assign(kind="review"), lbw_with.assign(kind="unreviewed")])
+    for sc in scen:
+        r = allrows[(allrows.seq == sc["seq"]) & (allrows.kind == sc["kind"])].iloc[0]
+        mb = b[b.match_id == sc["match_id"]].sort_values("seq")
+        wk_after = (mb.wkts_before + mb.wickets).to_numpy()
+        wpb = wp_states(wp, mb, wk_after)
+        wp_first = np.where(mb.inning == 1, wpb, 1 - wpb)  # WP of the side batting first, after each ball
+        m = matches[matches.match_id == sc["match_id"]].iloc[0]
+        first_team = mb[mb.inning == 1].bat_team.iloc[0]
+        sc.update(
+            comp=r.comp, season=int(r.season), date=r.date, event=r.event, inning=int(r.inning), over=int(r.over),
+            ball_in_over=int(((mb.seq < r.seq) & (mb.over == r.over) & (mb.inning == r.inning)).sum()),
+            bat_team=r.bat_team, bowl_team=r.bowl_team, side=r.rev_side if sc["kind"] == "review" else "bat",
+            by=r.rev_by if sc["kind"] == "review" else r.bat_team, batter=r.rev_batter if sc["kind"] == "review" else r.player_out,
+            bowler=r.bowler, umpire=r.rev_umpire if sc["kind"] == "review" else None,
+            runs=int(r.runs_before), wkts=int(r.wkts_before), legal=int(r.legal_before), target=int(r.target) if r.inning == 2 else None,
+            env=float(r.env), k=int(r.k), limit=int(r.limit), G=float(r.G), L=float(r.L), p_star=float(r.p_star),
+            p_hat=float(r.p_hat) if sc["kind"] == "review" else None,
+            outcome=("umpires_call" if r.uc else ("upheld" if r.upheld == 1 else "struck_down")) if sc["kind"] == "review" else "not_reviewed",
+            winner=m.winner, first_team=first_team,
+            worm=[round(float(x), 4) for x in wp_first], worm_inning=mb.inning.tolist(),
+            worm_over=[round(o + (i + 1) / 6, 3) for o, i in zip(mb.over, mb.groupby(["inning", "over"]).cumcount())],
+            worm_index=int(np.where(mb.seq.to_numpy() == sc["seq"])[0][0]))
+    lbw_examples = lbw_with.sort_values("G", ascending=False).head(25)[
+        ["comp", "season", "date", "bat_team", "bowl_team", "player_out", "bowler", "inning", "over", "runs_before",
+         "wkts_before", "target", "k", "G", "L", "p_star"]].fillna(0).round(4).to_dict("records")
+    unrev["examples"] = lbw_examples
+
     # ---- exports
     cols = ["match_id", "comp", "season", "date", "event", "inning", "over", "bat_team", "bowl_team", "rev_by", "rev_side",
             "rev_batter", "rev_batter_pos", "bowler", "rev_umpire", "upheld", "uc", "clean_fail", "wicket_kind", "legal_before",
             "runs_before", "wkts_before", "target", "env", "k", "limit", "wp_bat_before", "G", "L", "L_upper", "p_star", "p_hat",
-            "ev", "realized", "decided"]
+            "ev", "realized", "decided", "balls_after", "runs_after", "w_notout"]
     ex = rev[cols].copy()
     ex["target"] = ex.target.fillna(0).astype(int)
     ex["rev_batter_pos"] = ex.rev_batter_pos.fillna(0).astype(int)
@@ -315,8 +385,7 @@ def main():
         ex[c] = ex[c].round(4)
     os.makedirs(WEB, exist_ok=True)
     ex.to_csv(os.path.join(PROC, "reviews_scored.csv"), index=False)
-    with open(os.path.join(WEB, "reviews.json"), "w") as f:
-        json.dump(dict(columns=list(ex.columns), rows=ex.values.tolist()), f, default=str, separators=(",", ":"))
+    dump(dict(columns=list(ex.columns), rows=ex.values.tolist()), "reviews.json", separators=(",", ":"))
     summary = dict(
         n_reviews=int(len(rev)), n_matches=int(rev.match_id.nunique()), comps=sorted(rev.comp.unique().tolist()),
         seasons=[int(rev.season.min()), int(rev.season.max())], upheld=float(rev.upheld.mean()), uc_share=float(rev.uc.mean()),
@@ -340,8 +409,8 @@ def main():
                           L_median=float(g.L.median()), upheld=float(g.upheld.mean()), ci=wilson(g.upheld.sum(), len(g)))
                      for ph, g in live.groupby("phase")],
     )
-    with open(os.path.join(WEB, "drs_summary.json"), "w") as f:
-        json.dump(summary, f, indent=1, default=str)
+    dump(scen, "scenarios.json", separators=(",", ":"))
+    dump(summary, "drs_summary.json", indent=1)
     print("reviews", len(rev), "upheld", round(rev.upheld.mean(), 3), "limits", dict(limits))
     print("median G", rev.G.median(), "median L", rev.L.median(), "mean p*", rev.p_star.mean(), "neg EV share", (rev.ev < 0).mean())
     for p in price:

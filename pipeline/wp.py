@@ -168,16 +168,25 @@ def export_grid(wp):
     import base64
     runs = np.arange(0, 251)
     need = np.arange(1, 251)
-    t1, t2 = [], []
+    t1, t2, t3 = [], [], []
     for env in ENV_GRID:
         for o in range(20):
             for w in range(10):
                 t1.append(np.round(wp.first(np.full(251, o * 6.0), np.full(251, w), runs, np.full(251, env)) * 200))
                 t2.append(np.round(wp.chase(np.full(250, 120.0 - o * 6), np.full(250, w), need, np.full(250, env)) * 200))
+        for br in range(1, 13):  # ball-level resolution for the last two overs of a chase
+            for w in range(10):
+                t3.append(np.round(wp.chase(np.full(250, float(br)), np.full(250, w), need, np.full(250, env)) * 200))
     enc = lambda t: base64.b64encode(np.concatenate(t).astype(np.uint8).tobytes()).decode()
     return dict(env=ENV_GRID, overs=20, wkts=10, inn1=dict(runs_max=250, data=enc(t1)),
-                inn2=dict(need_max=250, data=enc(t2)), scale=200,
-                note="inn1 index: ((env*20+over)*10+wkts)*251+runs; inn2: ((env*20+over)*10+wkts)*250+(need-1); over = overs completed")
+                inn2=dict(need_max=250, data=enc(t2)), inn2_fine=dict(balls=12, data=enc(t3)), scale=200,
+                note="inn1: ((env*20+over)*10+wkts)*251+runs; inn2: ((env*20+over)*10+wkts)*250+(need-1); "
+                     "inn2_fine: ((env*12+balls_rem-1)*10+wkts)*250+(need-1); over = overs completed")
+
+
+def write_grid():
+    with open(os.path.join(WEB, "wp_grid.json"), "w") as f:
+        json.dump(export_grid(load_wp()), f)
 
 
 def main():
@@ -209,6 +218,7 @@ def main():
             train_rows=int(len(tr)), test_rows=int(len(te)),
             train_matches=int(tr.match_id.nunique()), test_matches=int(te.match_id.nunique()),
             env_train_range=[float(tr.env.min()), float(tr.env.max())],
+            env_train_q99=float(tr.env.quantile(0.99)),
             env_test_ipl_range=[float(te.env[ipl].min()), float(te.env[ipl].max())],
             constant=metrics(yt, p_c), logistic=metrics(yt, p_lr), gbm=metrics(yt, p_gb), gbm_absolute=metrics(yt, p_ab),
             ipl_only=dict(logistic=metrics(yt[ipl], p_lr[ipl]), gbm=metrics(yt[ipl], p_gb[ipl]), gbm_absolute=metrics(yt[ipl], p_ab[ipl])),
