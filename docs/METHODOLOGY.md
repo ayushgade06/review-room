@@ -200,7 +200,7 @@ python pipeline/parse.py     # zips -> data/processed/*.pkl
 python pipeline/wp.py        # WP models, validation, browser grid (slowest step)
 python pipeline/drs.py       # reviews, option values, tests, app data
 python -m pytest -q tests/   # pipeline logic
-node --test tests/           # browser engine parity
+node --test tests/engine.test.mjs           # browser engine parity
 ```
 
 All randomness is seeded: `random_state=0` for the boosted models, and seed 0 for the bootstraps. A clean rebuild from the committed zips (deleting `data/processed/` and `models/` first) took 10.5 minutes on our laptop. It regenerated the review, scenario, summary and grid files byte-for-byte; the validation report differed only by one field added to the code in that run.

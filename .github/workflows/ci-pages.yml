@@ -21,7 +21,7 @@ jobs:
         with: { node-version: "22" }
       - run: pip install -r requirements.txt
       - run: python -m pytest -q tests/
-      - run: node --test tests/
+      - run: node --test tests/engine.test.mjs
   deploy:
     needs: test
     runs-on: ubuntu-latest

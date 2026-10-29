@@ -1,4 +1,4 @@
-// node --test tests/  — checks the browser engine reproduces the Python pipeline's numbers.
+// node --test tests/engine.test.mjs  — checks the browser engine reproduces the Python pipeline's numbers.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";

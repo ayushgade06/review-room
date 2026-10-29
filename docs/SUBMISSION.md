@@ -5,7 +5,7 @@
 **Tagline (≤ 200 chars):** How sure does a captain need to be before reviewing? A win-probability model prices 5,132 real DRS reviews and gives the break-even confidence for any T20 situation.
 
 **Links**
-- Public GitHub repository: `https://github.com/<owner>/review-room` _(placeholder until the repository is created)_
+- Public GitHub repository: https://github.com/ayushgade06/review-room
 - Working prototype: `<GitHub Pages URL>` _(placeholder until deployed)_. It also runs locally with `python -m http.server` inside `web/`.
 
 ---

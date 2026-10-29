@@ -64,7 +64,7 @@ python pipeline/parse.py     # Cricsheet zips -> ball-level tables
 python pipeline/wp.py        # win-probability models + validation + browser grid
 python pipeline/drs.py       # review economics, tests, app data  (whole pipeline ~10 min on a laptop)
 python -m pytest -q tests/   # 7 tests: parsing, review accounting, break-even, leakage
-node --test tests/           # 4 tests: browser engine reproduces the Python numbers
+node --test tests/engine.test.mjs           # 4 tests: browser engine reproduces the Python numbers
 ```
 
 The exact Cricsheet snapshot used (29 Oct 2026) is committed in `data/raw/`, so a clean rebuild regenerates every file in `web/data/`.
