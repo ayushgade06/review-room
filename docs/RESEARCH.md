@@ -1,5 +1,13 @@
 # Research & idea selection
 
+**Summary.** We studied all 14 past AQX winners, the 19 visible 4.0 entries, the open sports datasets and their licences, and the relevant research. We scored 13 project ideas and picked the one that was:
+- practically useful (a decision coaches make every match);
+- analytically deep (a tested model plus a clear decision rule);
+- different from everything else in the field;
+- built on data we are allowed to publish.
+
+That idea is pricing cricket's replay challenges (DRS), the sport's version of the NFL challenge flag. The full trail is below.
+
 Prepared 29 October 2026 for AQX Sports Analytics Data Bowl 4.0. Facts here come from pages we read first-hand (marked with a source) or from data we parsed. Where something could not be verified it says so.
 
 **How sources were accessed.** Devpost returns HTTP 403 to automated fetchers. The 4.0 overview, rules and dates pages were first downloaded with `curl` using a browser user-agent string. When we then tried to have research agents use the same approach, our tooling blocked it as bot-check circumvention, and we stopped using it. Every other Devpost page (all three past galleries, all 14 winner pages, the 4.0 gallery, updates, participants and discussions) was read in an ordinary browser session. GitHub, Cricsheet and the literature were fetched normally.

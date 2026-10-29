@@ -1,5 +1,47 @@
 # Methodology
 
+## Plain-English summary (read this first)
+
+**The question.** Cricket's DRS lets a team challenge an umpire's call with video replay, like an NFL coach's red flag. Failed challenges are limited, so how sure should a team be before challenging?
+
+**The answer in one line.** Challenge if *your confidence × what the call is worth* is bigger than *your doubt × what a lost challenge costs*.
+
+**What we measured**, in "points" of win chance (40% → 46% to win = +6 points):
+
+| Plain name | What it means | Typical value | Symbol below |
+|---|---|---|---|
+| What the call is worth | How much the team's win chance changes if the challenge succeeds | 5.5 pts | G |
+| What a failed challenge costs | The win chance a team typically gains later from a challenge it still holds | 0.08 pts | L |
+| Too close to call | Share of failed challenges ruled "umpire's call", where the team keeps the challenge | 16–25% | u |
+| How sure you need to be | The minimum confidence that makes challenging worth it | 1.3% (a 1-in-77 chance) | p\* |
+
+**How we checked it.** The win-chance model was trained on matches before 2024 and graded on 2,813 later matches it never saw. It beat a standard textbook model and is well calibrated.
+
+**Main limitations.**
+- We can't see calls nobody challenged.
+- There is no ball-tracking data.
+- Values reflect how teams challenge today.
+
+The rest of this document gives the technical detail.
+
+### Glossary
+
+| Term | Meaning |
+|---|---|
+| Win probability (WP) / win chance | The percentage chance a team wins from the current situation, like the line on a TV broadcast. |
+| Wicket | An out. A team is finished after 10 outs or 120 balls. |
+| Over | A set of six balls. T20 = 20 overs per team. |
+| Innings | A team's turn to bat. Innings 2 is the chase. |
+| LBW | "Leg before wicket": out because the ball hit the batter's leg when it would have hit the stumps. |
+| Umpire's call | The replay is too close to overturn. The decision stands, and the challenge is kept. |
+| Log loss / Brier score | Standard error scores for probability forecasts. Lower is better. |
+| Calibration | Whether "70%" forecasts come true about 70% of the time. |
+| Baseline | A simpler model we must beat to show the extra complexity is worth it. |
+| Confidence interval (CI) | The plausible range of an estimate. If it excludes zero, the effect is not just noise. |
+| Odds ratio | How many times more likely success is, compared with the reference group. |
+| Option value | What it's worth to keep something (a challenge) for possible use later. |
+
+
 ## 1. Research question and decision
 
 **Question.** How confident must a T20 captain be that an on-field decision is wrong before reviewing it? And do observed review decisions reflect that price?

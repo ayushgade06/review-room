@@ -327,12 +327,12 @@ def main():
     # ---- curated scenarios (deterministic rules, 2024+ seasons, live states only) with WP worms
     recent = rev[(rev.season >= 2024) & (rev.decided == 0)]
     rules = [
-        ("swing_ipl", "The overturn that swung it", recent[(recent.upheld == 1) & (recent.comp == "IPL")], "G", False),
-        ("swing_t20i", "International: biggest overturn", recent[(recent.upheld == 1) & (recent.comp == "T20I")], "G", False),
-        ("found_wicket", "The wicket DRS found", recent[(recent.upheld == 1) & (recent.rev_side == "bowl") & (recent.comp != "IPL")], "G", False),
-        ("barely_mattered", "When the wicket barely mattered", recent[(recent.clean_fail == 1)], "p_star", False),
-        ("free_swing", "A miss that was still right", recent[(recent.clean_fail == 1) & (recent.over >= 16) & (recent.comp == "IPL")], "G", False),
-        ("umpires_call", "Saved by umpire's call", recent[recent.uc], "G", False),
+        ("swing_ipl", "The challenge that swung an IPL chase", recent[(recent.upheld == 1) & (recent.comp == "IPL")], "G", False),
+        ("swing_t20i", "Biggest winning challenge in an international", recent[(recent.upheld == 1) & (recent.comp == "T20I")], "G", False),
+        ("found_wicket", "The out that the replay found", recent[(recent.upheld == 1) & (recent.rev_side == "bowl") & (recent.comp != "IPL")], "G", False),
+        ("barely_mattered", "When the call barely mattered", recent[(recent.clean_fail == 1)], "p_star", False),
+        ("free_swing", "A lost challenge that was still right", recent[(recent.clean_fail == 1) & (recent.over >= 16) & (recent.comp == "IPL")], "G", False),
+        ("umpires_call", "Too close to call: challenge kept", recent[recent.uc], "G", False),
     ]
     scen, used = [], set()
     for sid, title, d, key, asc in rules:
@@ -343,7 +343,7 @@ def main():
             scen.append(dict(id=sid, title=title, kind="review", seq=int(r.seq), match_id=r.match_id))
     lw = lbw_with[lbw_with.season >= 2024].sort_values("G", ascending=False)
     if len(lw):
-        scen.append(dict(id="never_taken", title="The review never taken", kind="unreviewed", seq=int(lw.iloc[0].seq),
+        scen.append(dict(id="never_taken", title="The challenge never made", kind="unreviewed", seq=int(lw.iloc[0].seq),
                          match_id=lw.iloc[0].match_id))
     allrows = pd.concat([rev.assign(kind="review"), lbw_with.assign(kind="unreviewed")])
     for sc in scen:

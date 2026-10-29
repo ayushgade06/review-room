@@ -1,57 +1,50 @@
 # Demo script (about 90 seconds)
 
-**Setup:** open https://ayushgade06.github.io/review-room/, or run `python -m http.server 8000` inside `web/` and open http://localhost:8000. Start at the top of the page. All numbers below are what the app shows.
+**Setup:** open https://ayushgade06.github.io/review-room/ and start at the top. Every number below is what the app shows.
 
 ---
 
-### 0:00–0:15 · The question (hero)
+### 0:00–0:15 · The hook
 
-> "Every DRS review is a bet. You risk a review to win back a wicket. We priced both sides of that bet for **5,132 real reviews** across 11 men's T20 competitions.
-> A wicket in question typically swings **5.5 win-percentage points**. A review held in reserve is worth about **0.08**. So the bar for reviewing is tiny: a median break-even confidence of **1.3%**."
+> "Cricket has its own version of the NFL challenge flag. A team can challenge the umpire's call with video replay, but challenges are limited. So every challenge is a bet: risk a challenge you might need later, to fix a call that might cost you the game.
+> We priced that bet for **5,132 real challenges**. A disputed call is typically worth **5.5 points** of win chance. A failed challenge costs about **0.08**. So a team typically needs only a **1-in-77** belief that the umpire is wrong."
 
-Point at the HUD on the ball-tracking graphic: wicket swing, review at risk, break-even, overturned.
+If a judge is new to cricket, click **New to cricket? 60-second primer** (four short cards).
 
-### 0:15–0:45 · The Review Room (the core interaction)
+### 0:15–0:30 · The cheat sheet
 
-Click **Enter the Review Room**. The first case file loads: *The overturn that swung it*.
+Scroll to **The cheat sheet**.
 
-> "IPL 2025. Rajasthan are chasing 206 and are 112 for 3 in the tenth over when Dhruv Jurel is given out LBW.
-> On the win-probability curve, the orange bracket is what's at stake: **17.4 points**. Losing a review would cost **0.09**. Umpire's call keeps the review a quarter of the time.
-> So Jurel should review if he is even **0.39% sure** the umpire is wrong."
+> "This is the one-screen policy a coach could pin in the dressing room. Early in the innings, with two challenges left, a batting team should challenge at a **1-in-23** chance. Late in the innings it's **1-in-456**: challenge almost anything. The simple rule: **unless you're about 92% sure the umpire is right, challenge.**"
 
-Drag the confidence slider down towards 1%. The expected value stays positive, and turns negative just left of the orange break-even line.
+### 0:30–0:55 · The Review Room
 
-> "History says reviews like this are overturned 32% of the time, more than ten times the bar."
+Scroll to **The Review Room**. The first case file is loaded.
 
-Click **Reveal the decision**. The **NOT OUT** stamp appears with "+17.4 pts won back".
+> "IPL 2025. Rajasthan are chasing 206, at 112 for 3, when Dhruv Jurel is given out. The orange bracket on the win-chance line is what's riding on the call: **17.4 points**. A failed challenge would cost **0.09**. So Jurel needed only a **1-in-254** belief the umpire was wrong."
 
-Optionally, click *When the wicket barely mattered* (SA v SL, T20I 2024). The wicket is worth only 0.3 points, so the bar jumps to about 49%: "the review isn't free when the wicket doesn't matter."
+Drag the confidence slider. The expected value is shown live, and turns negative only to the left of the orange bar.
 
-### 0:45–1:05 · The price map
+Click **Reveal the replay verdict**. A **NOT OUT** stamp appears: "+17.4 pts won back".
 
-Scroll to **02 The price of a review**.
+Optional contrast: click **When the call barely mattered**. The match is nearly decided, so the bar jumps to about 49%.
 
-> "This is the same calculation across every game state, here for a chasing side's *last* review. Light cells are where a review is relatively expensive: early in the innings, in lopsided games. Even then the bar tops out around 13%. In three quarters of states you need less than 5% confidence."
+### 0:55–1:15 · Do teams challenge enough?
 
-Hover a light cell, then a dark cell.
+Scroll to **Do teams challenge enough?**
 
-### 1:05–1:20 · Do captains get it right?
+> "Teams win challenges 18–41% of the time, depending on the situation (the dots). They only need to win about 0.2–2.4% of the time (the diamonds). And with their last challenge they're even more cautious. Meanwhile **463** batters walked off 'out' without challenging, with a challenge still unused."
 
-Scroll to **03**.
+### 1:15–1:30 · Trust and close
 
-> "Overturn rates (the blue and orange dots, with 95% intervals) sit far to the right of the break-even diamonds in every phase. Captains could review much more freely.
-> They do behave rationally in one way: on their last review they're pickier, with odds of an overturn 1.38× higher. But 463 batters walked off LBW without reviewing while their side still had a review in hand, at a median break-even of 1.9%."
+Scroll to **Can you trust the numbers?**
 
-### 1:20–1:30 · Evidence and close
-
-Scroll to **05 Evidence**.
-
-> "It's all tested on matches the models never saw (2024–26). The win-probability model beats a logistic baseline in both innings, and it's well calibrated.
-> One honest negative: match context can't predict which reviews succeed beyond which side is reviewing. That's exactly why the tool asks for the captain's confidence instead of pretending to predict it.
-> **Takeaway: in T20, a review is cheap and a wicket is expensive. Unless you're nearly certain the umpire is right, review.**"
+> "The model learned from matches before 2024 and was graded on 2,813 later matches it had never seen. When it says 70%, teams win about 70% of the time. And one honest negative: no model can predict which challenges win from the match situation alone. Only the player sees the ball, so the tool asks for their confidence instead of pretending.
+> **Bottom line: in T20 cricket a challenge is cheap and a call is expensive. Teams should challenge far more often.**"
 
 ---
 
-**If asked:**
-- *"Isn't the option value underestimated?"* See the Robustness table. Even with option value tripled, 81% of real review decisions had a break-even below 10%.
-- *"Is this causal?"* No. The win-probability swing is a model estimate. The behavioural results are associations conditional on a team having chosen to review.
+**Likely questions**
+- *"Isn't a saved challenge worth more than you think?"* See **Does the main finding survive tougher assumptions?** Even at 3× our estimate, 81% of decisions needed less than a 1-in-10 belief.
+- *"Is this cause and effect?"* No. Win chance is a model estimate, and the behaviour findings are patterns among challenges that were actually made.
+- *"Why cricket?"* Clean, openly licensed ball-by-ball data with replay-challenge records, and nobody has priced this decision before. The same method works for NFL or MLB challenges.

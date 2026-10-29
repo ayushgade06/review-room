@@ -130,7 +130,7 @@ select, input[type="number"], input[type="search"] { background: var(--panel2); 
 .chart { width: 100%; position: relative; }
 .chart svg { width: 100%; height: auto; display: block; overflow: visible; }
 .axis text, .lbl { fill: var(--muted); font: 11px var(--mono); }
-.halo { paint-order: stroke; stroke: var(--panel); stroke-width: 5px; stroke-linejoin: round; }
+.halo { paint-order: stroke; stroke: var(--panel); stroke-width: 8px; stroke-linejoin: round; }
 .axis line, .axis path { stroke: var(--line); }
 .gridl { stroke: var(--grid); }
 .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: .82rem; color: var(--ink2); margin-top: 10px; align-items: center; }
@@ -176,3 +176,13 @@ td.n { text-align: right; } th.n { text-align: right; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .tiles li { opacity: 1; } .track { stroke-dashoffset: 0; }
 }
+
+/* primer + cheat sheet */
+.steps { list-style: none; counter-reset: s; padding: 0; margin: 0 0 18px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.steps li { counter-increment: s; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 16px 18px; color: var(--ink2); }
+.steps li::before { content: counter(s); display: block; font: 900 2rem/1 var(--display); color: var(--uc); margin-bottom: 8px; }
+.steps b { color: var(--ink); display: block; margin-bottom: 4px; font-size: 1.02rem; }
+table.policy td, table.policy th { padding: 12px 14px; }
+table.policy td.n b { font-family: var(--display); font-size: 1.5rem; font-weight: 800; color: var(--ink); }
+table.policy td:first-child { color: var(--ink); font-weight: 600; }
+@media (max-width: 980px) { .steps { grid-template-columns: minmax(0, 1fr); } }

@@ -1,81 +1,92 @@
 # Devpost submission text
 
-**Project title:** Review Room: the economics of DRS in T20 cricket
+**Project title:** Review Room: when should a cricket team challenge the umpire?
 
-**Tagline (≤ 200 chars):** How sure does a captain need to be before reviewing? A win-probability model prices 5,132 real DRS reviews and gives the break-even confidence for any T20 situation.
+**Tagline (≤ 200 chars):** Cricket's version of the NFL challenge flag, priced with data. 5,132 real challenges show how sure a team must be before challenging, and that teams challenge far too rarely.
 
 **Links**
+- Working prototype: https://ayushgade06.github.io/review-room/ (it also runs locally with `python -m http.server` inside `web/`)
 - Public GitHub repository: https://github.com/ayushgade06/review-room
-- Working prototype: https://ayushgade06.github.io/review-room/ (static site; it also runs locally with `python -m http.server` inside `web/`).
+
+**Suggested image gallery** (in `docs/img/`, in this order, with captions):
+1. `1-hero.png`: "Cricket's challenge system, priced: what a call is worth vs what a failed challenge costs."
+2. `2-primer.png`: "New to cricket? The four ideas you need."
+3. `3-cheat-sheet.png`: "The cheat sheet: how sure a player needs to be, by stage of the match."
+4. `4-review-room.png`: "Replay any real challenge: the win-chance line, the stakes, the bar, the verdict."
+5. `5-price-map.png`: "Every moment of a match: light = be fairly sure, dark = challenging is nearly free."
+6. `6-captains.png`: "Teams win challenges far more often than they need to: they should challenge more."
+7. `7-evidence.png`: "Tested on 2,813 matches the model had never seen."
 
 ---
 
 ## Inspiration
 
-Every DRS review is a bet made in about 15 seconds. You risk a review to win back a wicket. Commentators judge reviews by their outcome, and players are taught not to "waste" them. But nobody puts a price on either side of the bet. We wanted to answer one practical question for captains: **how confident do you need to be that the umpire is wrong before reviewing?**
+Cricket has its own version of the **NFL coach's red flag**. A team can challenge an umpire's "out" or "not out" call with video replay. The system is called DRS (Decision Review System). Each team can only lose a couple of challenges per innings, so players hesitate. Commentators say "don't waste it", and challenges are judged by whether they worked.
+
+But nobody puts numbers on the bet. You risk a challenge you might need later, to fix a call that might cost you the game. **How sure do you actually need to be?**
 
 ## What it does
 
-Review Room prices every review with two numbers:
-- **G**, the win-probability swing of the wicket in question;
-- **L**, the option value of the review you would lose if it failed.
+Review Room prices both sides of every challenge, in **win chance**: the percentage chance a team wins, updated after every ball, like a TV win-probability line.
 
-Umpire's call keeps the review, so a failed review only costs L when it fails outright. The decision rule is: **review if your confidence exceeds p\* = (1 − u)L / (G + (1 − u)L)**, where u is the share of failed reviews that end as umpire's call.
+- **What the call is worth:** how much a team's win chance changes if the call is overturned.
+- **What a failed challenge costs:** how much win chance a team typically gains later from a challenge it still holds.
+- Together they give **how sure you need to be** before challenging.
 
 **Features**
-- **Review Room.** Seven rule-selected case files, a searchable table of all 5,132 reviews, and a situation builder. For each one you see:
-  - the match's ball-by-ball win-probability curve, with the swing at stake;
-  - G, L and the break-even confidence;
-  - a confidence slider showing the expected value of reviewing;
-  - a reveal of what actually happened.
-- **Price map.** Break-even confidence for every over and game state, by innings, reviewing side and reviews left.
-- **Do captains respond to the price?** Overturn rates with 95% intervals vs break-even, by phase; the last-review effect; and 463 LBWs walked off with a review still in hand.
-- **Team audit.** Net win probability each team has gained from its own reviews.
-- **Evidence.** Holdout calibration, baselines, odds ratios and sensitivity analysis.
+- **New-to-cricket primer:** four ideas, with NFL, MLB and tennis comparisons.
+- **The cheat sheet:** a one-screen challenge policy by stage of the match and challenges left. Example: early in the innings with two challenges left, a batting team should challenge if they see a 1-in-23 chance the umpire is wrong.
+- **The Review Room:** replay real challenges (or browse all 5,132, or build your own situation). For each one:
+  - the match's win-chance line;
+  - what was riding on the call;
+  - a slider for your own confidence;
+  - a reveal of the real replay verdict.
+- **Price map:** how sure you need to be, for every over and match situation.
+- **Do teams challenge enough?** Success rates vs the bar; the last-challenge effect; batters who walked off without challenging.
+- **Team audit and evidence:** win chance gained per team, and how the model was tested.
 
 ## Key findings
 
-All numbers are from the app, on Cricsheet men's T20 data, 2017–2026.
+All from Cricsheet data on 5,132 men's T20 challenges, 2017–2026.
 
-- **A review is cheap; a wicket is expensive.** The median reviewed wicket swings **5.5 points** of win probability. The median failed review costs **0.08 points** of option value.
-- **The bar is low.** The median break-even confidence is **1.3%**. In **95.6%** of live review decisions it was below 10%. That holds at 81% even if option value is tripled.
-- **Teams partly respond to the price.** They are pickier with their last review: odds of an overturn are **1.38×** higher (95% CI 1.17–1.61). They also get more speculative late in the innings: overturn rate falls from 32% in the powerplay to 22% at the death. But overturn rates beat break-even by more than ten times in every phase, so there is room to review more.
-- **Batters leave value on the table.** **463** LBW dismissals went unreviewed while the side still had a review, at a median break-even of 1.9%.
-- **An honest negative result.** Match context cannot predict which reviews succeed beyond which side is reviewing (Δ log loss −0.0001, 95% CI −0.005 to +0.006, on 2025–26 reviews). The captain's own read is what matters, so the tool asks for it instead of pretending to predict it.
+- **A challenge is cheap; a call is expensive.** A disputed call is typically worth **5.5 points** of win chance. A failed challenge typically costs **0.08 points**.
+- **The bar is low.** Typically a team needs only **1.3%** confidence that the umpire is wrong, about a 1-in-77 chance. In **96%** of real decisions they needed less than 1-in-10. This holds at 81% even if a saved challenge were worth three times our estimate.
+- **Teams are too cautious.** They win **27%** of challenges, far above the bar everywhere in the match. They get even pickier with their last challenge: odds of success **1.38×** higher. And **463** batters walked off "out" without challenging while their team still had one.
+- **Simple team rule:** unless you're about 92% sure the umpire is right, challenge.
+- **An honest negative result:** match situation can't predict which challenges succeed. That depends on the ball, which only the player sees. So the tool asks for the player's confidence instead of guessing.
 
 ## Actionable impact
 
-- **Team rule of thumb.** "Unless you're nearly certain it's out, review." The price map shows when to be stricter: early overs, lopsided matches, the last review in a first innings.
-- **Coaching.** Show players their own review history against break-even, rather than judging reviews by outcome.
-- **Broadcast.** An instant, explainable "should they review?" number for any delivery.
+- **Coaches:** set a pre-agreed challenge policy using the cheat sheet, instead of deciding on gut feel in 15 seconds.
+- **Analysts:** review each player's challenges against the bar, not just against the outcome.
+- **Broadcasters:** an instant, explainable "should they challenge?" number for any delivery.
 
 ## How we built it
 
-1. **Data.** We parsed 11 Cricsheet archives (8,897 matches, 2.04M deliveries) into ball-level states, including Cricsheet's `review` records.
-2. **Win-probability model.** Monotonic gradient-boosted trees, one per innings, on *par-relative* features: runs measured against the competition's recent scoring environment, using only earlier matches.
-   - Trained on games before 2024 and tested on 2,813 matches from 2024–26.
-   - It beats logistic regression in both innings (Δ log loss −0.010 [−0.013, −0.007] and −0.011 [−0.016, −0.007], match-cluster bootstrap) and is well calibrated.
-3. **Reviews remaining.** Reconstructed from the order of reviews. Allowances are inferred from the data, and the inference matches the IPL's 2022 change from one to two unsuccessful reviews per innings.
-4. **Option value.** Estimated empirically: the future win probability gained from overturns by teams still holding k reviews, with isotonic smoothing.
-5. **Review-outcome model.** A logistic regression with match-clustered standard errors, used for the behavioural tests.
-6. **App.** A static web app (vanilla JS, hand-built SVG charts). The model runs in the browser from exported lookup tables, and 11 automated tests check the pipeline logic and that the browser engine reproduces the Python numbers.
+1. **Data:** 8,897 professional T20 matches (2.04 million balls) from Cricsheet's open ball-by-ball data, including its replay-challenge records.
+2. **Win-chance model:** trained on matches before 2024 and tested on **2,813 later matches it had never seen**.
+   - It beats a standard textbook model (logistic regression) in both innings, with the improvement holding under re-sampling.
+   - It is well calibrated: when it says 70%, teams win about 70% of the time.
+3. **Challenges left:** rebuilt from the order of challenges in each match. Our reconstruction matches the IPL's real 2022 rule change from one to two challenges per innings.
+4. **Cost of a lost challenge:** measured from how much win chance teams gain later from the challenges they still hold.
+5. **App:** a static web app with no servers and no API keys. The maths runs in the browser, and 11 automated tests check the data processing and that the browser matches the Python results.
 
-## Challenges
+## Challenges we ran into
 
-- **Distribution shift.** Our first boosted model lost to logistic regression in the chase, by +0.11 log loss on IPL. The IPL's 2024–26 scoring environment (first-innings averages of 183–201) lies largely beyond anything in training, and trees cannot extrapolate. Re-expressing runs relative to par fixed it, and the fix is documented with before-and-after numbers.
-- **Missing state.** Cricsheet doesn't record reviews remaining, so we reconstructed them and validated the reconstruction against the published rule changes.
-- **Selection.** Appeals that weren't reviewed are invisible. We say so, and we frame the unreviewed-LBW figures as scenarios, not estimates.
+- **Record-breaking scoring.** The IPL now scores far more runs than in any earlier season, and our first model broke on those matches. Measuring runs against each league's recent "par" fixed it, like judging an NBA team's points against that season's pace.
+- **Missing information.** The data doesn't say how many challenges a team has left, so we rebuilt it and checked the result against the published rules.
+- **Invisible calls.** Calls nobody challenged don't appear in the data. We say so, and treat those numbers as scenarios rather than facts.
 
 ## Limitations
 
 - No ball-tracking data.
-- The captain's belief is supplied by the user.
-- Option values reflect current reviewing behaviour.
-- Win probability is state-based, not player-specific.
-- These are associations, not causal effects.
+- The player's confidence is supplied by the user.
+- Challenge values reflect how teams challenge today.
+- Win chance depends on the match situation, not on which player is batting.
+- These are patterns, not proof of cause and effect.
 
 ## Built with
 
-Python · pandas · scikit-learn · statsmodels · vanilla JavaScript · SVG · Cricsheet (ODC-By 1.0)
+Python · pandas · scikit-learn · statsmodels · JavaScript · SVG · Cricsheet open data (ODC-By 1.0)
 
 _Contains information from Cricsheet, made available under the ODC Attribution License 1.0._

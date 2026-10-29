@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Review Room — the economics of DRS in T20 cricket</title>
-<meta name="description" content="How sure does a T20 captain need to be before reviewing? A win-probability model of 5,132 DRS reviews from 11 men's T20 competitions.">
+<title>Review Room — when should a cricket team challenge the umpire?</title>
+<meta name="description" content="Cricket's version of the NFL challenge flag, priced with data: how sure a team must be before challenging an umpire, from 5,132 real challenges.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800;900&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -25,10 +25,10 @@
 <main id="top">
   <section class="hero">
     <div class="hero-copy">
-      <p class="kicker">T20 cricket · Decision Review System · win-probability economics</p>
-      <h1>How sure does a captain need to be <em>before reviewing?</em></h1>
-      <p class="lede" id="lede">Every review risks something small to win something big. We priced both sides of that bet, ball by ball, for every recorded review in men's T20 cricket.</p>
-      <div class="cta"><a class="btn primary" href="#room">Enter the Review Room</a><a class="btn" href="#evidence">See the evidence</a></div>
+      <p class="kicker">Cricket's version of the NFL challenge flag · 5,132 real challenges analysed</p>
+      <h1>When should a captain <em>throw the challenge flag?</em></h1>
+      <p class="lede" id="lede">In cricket, a team can challenge an umpire's call with video replay — just like an NFL coach's red flag or an MLB manager's challenge. We worked out how sure a team needs to be before challenging, using every recorded challenge in men's T20 cricket.</p>
+      <div class="cta"><a class="btn primary" href="#room">Enter the Review Room</a><a class="btn" href="#primer">New to cricket? 60-second primer</a></div>
     </div>
     <figure class="hero-viz" aria-label="Illustration: ball tracking towards the stumps, with the break-even confidence">
       <svg viewBox="0 0 420 300" role="img" aria-hidden="true">
@@ -42,25 +42,47 @@
         <g class="stumps"><rect x="196" y="58" width="5" height="40" rx="1.5"/><rect x="207.5" y="58" width="5" height="40" rx="1.5"/><rect x="219" y="58" width="5" height="40" rx="1.5"/><rect x="194" y="54" width="32" height="3" rx="1.5"/></g>
         <circle cx="214" cy="92" r="9" fill="var(--ball)" class="ballmark"/>
         <g class="hud" font-family="JetBrains Mono, monospace" font-size="11">
-          <text x="18" y="70" fill="#858a82">WICKET SWING</text><text x="18" y="92" class="hudv" id="hud-g">—</text>
-          <text x="18" y="132" fill="#858a82">REVIEW AT RISK</text><text x="18" y="154" class="hudv" id="hud-l">—</text>
-          <text x="316" y="70" fill="#858a82">BREAK-EVEN</text><text x="316" y="92" class="hudv big" id="hud-p">—</text>
+          <text x="18" y="70" fill="#858a82">A CALL IS WORTH</text><text x="18" y="92" class="hudv" id="hud-g">—</text>
+          <text x="18" y="132" fill="#858a82">A FAILED CHALLENGE COSTS</text><text x="18" y="154" class="hudv" id="hud-l">—</text>
+          <text x="316" y="70" fill="#858a82">SURE ENOUGH AT</text><text x="316" y="92" class="hudv big" id="hud-p">—</text>
           <text x="316" y="132" fill="#858a82">OVERTURNED</text><text x="316" y="154" class="hudv" id="hud-o">—</text>
         </g>
       </svg>
-      <figcaption>Medians across 5,132 reviews (break-even: live decisions only). 1 pt = one percentage point of win probability.</figcaption>
+      <figcaption>Typical values across 5,132 challenges. "Points" = percentage points of win chance: going from 40% to 46% to win is +6 points.</figcaption>
     </figure>
     <ul class="tiles" id="tiles" aria-label="Headline numbers"></ul>
+  </section>
+
+  <section id="primer" class="sec primer">
+    <header class="sec-head">
+      <p class="num">00</p>
+      <div><h2>New to cricket? Start here</h2><p>You only need four ideas to follow everything on this page.</p></div>
+    </header>
+    <ol class="steps">
+      <li><b>A wicket is an out.</b> Each team bats once, for up to 120 balls (a T20 match), and is done after 10 outs. Losing a batter is a big deal — like an out with the bases loaded.</li>
+      <li><b>The umpire makes a call.</b> On the spot, the umpire rules a batter "out" or "not out". The most disputed calls are <i>LBW</i> (the ball hit the batter's leg when it would have hit the stumps) and thin catches.</li>
+      <li><b>Either team can challenge it — that's DRS.</b> The Decision Review System is cricket's replay challenge: the same idea as the NFL red flag, MLB's manager challenge or a tennis Hawk-Eye challenge. Video and ball-tracking decide.</li>
+      <li><b>Challenges are limited.</b> A team can lose two challenges per innings in most leagues. If the replay is too close to call ("umpire's call"), the original decision stands but the team keeps its challenge.</li>
+    </ol>
+    <p class="takeaway">So every challenge is a small bet: <b>risk a challenge you might need later, to fix a call that might cost you the game.</b> This project measures both sides of that bet in "win chance" — the percentage chance each team wins, updated after every ball, like the win-probability line on a TV broadcast.</p>
+  </section>
+
+  <section id="policy" class="sec">
+    <header class="sec-head">
+      <p class="num">★</p>
+      <div><h2>The cheat sheet</h2><p>A one-screen challenge policy a coach could pin in the dressing room. Each cell is how sure a player needs to be that the umpire got it wrong — in 9 of 10 match situations of that type.</p></div>
+    </header>
+    <div class="card"><div class="table-wrap" id="policy-table"></div><p class="note" id="policy-note"></p></div>
   </section>
 
   <section id="room" class="sec">
     <header class="sec-head">
       <p class="num">01</p>
-      <div><h2>The Review Room</h2><p>Pick a real decision, or build your own. The model prices what an overturn wins and what a failed review costs, then gives the confidence a captain needs before reviewing.</p></div>
+      <div><h2>The Review Room</h2><p>Replay a real challenge, browse all 5,132, or build your own situation. For each one we show what the disputed call is worth, what a failed challenge would cost, and how sure the team needed to be. Then reveal what really happened.</p></div>
     </header>
     <div class="modes" role="tablist" aria-label="Choose a situation">
       <button role="tab" aria-selected="true" data-mode="cases">Case files</button>
-      <button role="tab" aria-selected="false" data-mode="browse">All reviews</button>
+      <button role="tab" aria-selected="false" data-mode="browse">All 5,132 challenges</button>
       <button role="tab" aria-selected="false" data-mode="custom">Build a situation</button>
     </div>
     <div class="mode-body" id="mode-cases"><div class="chips" id="chips"></div></div>
@@ -80,7 +102,7 @@
   <section id="map" class="sec">
     <header class="sec-head">
       <p class="num">02</p>
-      <div><h2>The price of a review</h2><p>Break-even confidence across every game state in DRS-recorded seasons. Light cells are where a review is relatively expensive; dark cells are where it is almost free.</p></div>
+      <div><h2>The price of a challenge</h2><p>How sure you need to be, across every moment of a match. Each square is one over (a set of six balls) and one match situation. Light squares: be fairly sure before challenging. Dark squares: challenging is nearly free.</p></div>
     </header>
     <div class="filters" id="map-filters"></div>
     <div class="card chart-card"><div id="heatmap" class="chart"></div><div id="heat-legend" class="legend"></div>
@@ -91,12 +113,12 @@
   <section id="behaviour" class="sec">
     <header class="sec-head">
       <p class="num">03</p>
-      <div><h2>Do captains respond to the price?</h2><p>If captains review only when they are confident enough, observed success should clear the break-even bar. It clears it by a wide margin everywhere — the bar is far lower than behaviour suggests.</p></div>
+      <div><h2>Do teams challenge enough?</h2><p>If teams only challenged when they were sure enough, their success rate would sit just above the "sure enough" bar. Instead it sits far above it, in every part of the match. That means teams are leaving cheap challenges unused.</p></div>
     </header>
     <div class="grid2">
-      <div class="card chart-card"><h3>Overturn rate vs break-even, by phase</h3><div id="phase-chart" class="chart"></div><div class="legend" id="phase-legend"></div>
+      <div class="card chart-card"><h3>How often challenges win vs how often they need to</h3><div id="phase-chart" class="chart"></div><div class="legend" id="phase-legend"></div>
         <details><summary>Data table</summary><div class="table-wrap" id="phase-table"></div></details></div>
-      <div class="card chart-card"><h3>The last-review effect</h3><div id="last-chart" class="chart"></div><p class="note" id="last-note"></p></div>
+      <div class="card chart-card"><h3>Teams get pickier with their last challenge</h3><div id="last-chart" class="chart"></div><p class="note" id="last-note"></p></div>
     </div>
     <div class="card lbw">
       <div class="lbw-stat" id="lbw-stat"></div>
@@ -107,27 +129,27 @@
   <section id="audit" class="sec">
     <header class="sec-head">
       <p class="num">04</p>
-      <div><h2>Team audit</h2><p>Net win probability each team has gained from its own reviews, in expected wins (100 win-% points = one win): overturns add the wicket swing; outright failures subtract the option value lost; umpire's call costs nothing.</p></div>
+      <div><h2>Team audit</h2><p>How much each team has gained from its own challenges, counted in wins (100 points of win chance = one extra win). A successful challenge adds what the call was worth; a failed one subtracts what the lost challenge was worth; "umpire's call" costs nothing.</p></div>
     </header>
     <div class="filters" id="audit-filters"></div>
     <div class="table-wrap card"><table class="data" id="audit-table"></table></div>
-    <p class="hint">Teams with at least 15 reviews. 95% Wilson intervals on overturn rate. "Expected" is the review-outcome model's average prediction for that team's review mix.</p>
+    <p class="hint">Teams with at least 15 challenges. Brackets show the plausible range (95% interval). "Expected" is the success rate an average team would get with the same mix of challenges.</p>
   </section>
 
   <section id="evidence" class="sec">
     <header class="sec-head">
       <p class="num">05</p>
-      <div><h2>Evidence</h2><p>Everything is validated on matches the models never saw: trained on games before 2024, tested on 2024–2026.</p></div>
+      <div><h2>Can you trust the numbers?</h2><p>The win-chance model learned from matches before 2024 and was graded on 2,813 matches from 2024–26 that it had never seen — like back-testing a betting model on future seasons. Lower "log loss" and "Brier" scores mean more accurate forecasts.</p></div>
     </header>
     <div class="grid2">
-      <div class="card chart-card"><h3>Win-probability calibration (2024–26 holdout)</h3><div id="calib-chart" class="chart"></div><div class="legend" id="calib-legend"></div></div>
-      <div class="card"><h3>Win-probability model vs baselines</h3><div class="table-wrap" id="wp-table"></div><p class="note" id="wp-note"></p></div>
+      <div class="card chart-card"><h3>When the model says 70%, does the team win 70% of the time?</h3><div id="calib-chart" class="chart"></div><div class="legend" id="calib-legend"></div></div>
+      <div class="card"><h3>Our model vs simpler alternatives (2024–26 matches)</h3><div class="table-wrap" id="wp-table"></div><p class="note" id="wp-note"></p></div>
     </div>
     <div class="grid2">
-      <div class="card chart-card"><h3>What predicts an overturn? (odds ratios, 95% CI)</h3><div id="forest" class="chart"></div><p class="note">Logistic regression on all 5,132 reviews, standard errors clustered by match. Odds ratio &gt; 1 means more likely to be overturned.</p></div>
-      <div class="card"><h3>Can match context predict review outcomes?</h3><div class="table-wrap" id="rev-table"></div><p class="note" id="rev-note"></p></div>
+      <div class="card chart-card"><h3>What makes a challenge more likely to succeed?</h3><div id="forest" class="chart"></div><p class="note">Right of the 1× line = more likely to succeed; left = less likely. Bars show the plausible range; faded rows are not clearly different from 1×. (Logistic regression on all 5,132 challenges.)</p></div>
+      <div class="card"><h3>Can a model predict which challenges will win?</h3><div class="table-wrap" id="rev-table"></div><p class="note" id="rev-note"></p></div>
     </div>
-    <div class="card"><h3>Robustness of the headline</h3><div class="table-wrap" id="sens-table"></div><p class="note">Share of live review decisions whose break-even confidence was below 10%, under alternative option-value estimates.</p></div>
+    <div class="card"><h3>Does the main finding survive tougher assumptions?</h3><div class="table-wrap" id="sens-table"></div><p class="note">Share of real challenge decisions where a team needed less than 10% confidence — even if a saved challenge were worth three times our estimate.</p></div>
   </section>
 
   <section id="method" class="sec method">
@@ -136,13 +158,13 @@
       <div><h2>Method &amp; limits</h2></div>
     </header>
     <div class="grid3">
-      <div><h3>The decision</h3>
-        <p>Review when <span class="eq">p · G &gt; (1 − p) · (1 − u) · L</span>, so the break-even belief is <span class="eq">p* = (1 − u)L / (G + (1 − u)L)</span>.</p>
-        <p><b>G</b> = win-probability swing of the wicket in question. <b>L</b> = option value lost if the review fails outright. <b>u</b> = share of failed reviews that end as umpire's call (the review is retained).</p></div>
-      <div><h3>The models</h3>
-        <p><b>Win probability:</b> gradient-boosted trees with monotonic constraints on par-relative features (runs against the competition's recent scoring), one per innings. <b>Option value:</b> mean future win probability gained from overturns by teams still holding <i>k</i> reviews at that over, isotonic-smoothed. <b>Allowances</b> (1 or 2 unsuccessful reviews per innings) are inferred from the review sequences and match the published IPL rule change in 2022.</p></div>
+      <div><h3>The bet, in one line</h3>
+        <p>Challenge if <span class="eq">your confidence × what the call is worth</span> is bigger than <span class="eq">your doubt × what a lost challenge costs</span>.</p>
+        <p>Rearranged, the minimum confidence is <span class="eq">p* = (1 − u)L / (G + (1 − u)L)</span>, where <b>G</b> is what the call is worth, <b>L</b> what a failed challenge costs, and <b>u</b> the share of failures that are "umpire's call" (challenge kept).</p></div>
+      <div><h3>How the pieces are measured</h3>
+        <p><b>What a call is worth:</b> the drop in win chance from losing that batter, from a model trained on 8,897 matches — think of a TV win-probability line. <b>What a failed challenge costs:</b> how much win chance teams typically gain later from the challenges they still hold, measured from real matches. <b>Challenges left:</b> rebuilt from the order of challenges in each innings; it matches the IPL's 2022 rule change from one to two.</p></div>
       <div><h3>What this does not claim</h3>
-        <p>We never see appeals that were not reviewed, or ball-tracking. A captain's belief <i>p</i> is theirs to supply; the tool supplies the threshold. Option values reflect current reviewing behaviour and DRS-recorded seasons only. Win probabilities are model estimates, not certainties; associations are not causal effects.</p></div>
+        <p>We cannot see calls nobody challenged, and we have no ball-tracking data, so the player's own read of the ball is the missing ingredient — the tool asks for it rather than guessing it. All numbers are estimates, and patterns in behaviour are not proof of cause and effect.</p></div>
     </div>
     <p class="attr">Contains information from <a href="https://cricsheet.org/">Cricsheet</a>, made available under the <a href="https://opendatacommons.org/licenses/by/1-0/">ODC Attribution License 1.0</a>. Not affiliated with or endorsed by Cricsheet, the ICC or any league. Full methodology: <a href="https://github.com/ayushgade06/review-room/blob/main/docs/METHODOLOGY.md">docs/METHODOLOGY.md</a>.</p>
   </section>
