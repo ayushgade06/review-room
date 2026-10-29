@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.venv/
+node_modules/
+data/raw/*/
+data/processed/
+models/
+.pytest_cache/
+.DS_Store
+*.log
