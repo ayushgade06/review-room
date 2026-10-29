@@ -4,8 +4,8 @@
 
 Built for **AQX Sports Analytics Data Bowl 4.0**, using 5,132 real reviews from 11 men's T20 competitions (Cricsheet ball-by-ball data, 2017–2026).
 
-- **Live app:** _(link added once deployed)_
-- **Code:** this repository
+- **Live app:** https://ayushgade06.github.io/review-room/
+- **Code:** https://github.com/ayushgade06/review-room
 - **Docs:** [Methodology](docs/METHODOLOGY.md) · [Research & idea selection](docs/RESEARCH.md) · [Data sources & licences](docs/DATA_SOURCES.md) · [Demo script](docs/DEMO_SCRIPT.md) · [Submission text](docs/SUBMISSION.md)
 
 

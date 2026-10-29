@@ -1,6 +1,6 @@
 # Demo script (about 90 seconds)
 
-**Setup:** open the app at its URL, or run `python -m http.server 8000` inside `web/` and open http://localhost:8000. Start at the top of the page. All numbers below are what the app shows.
+**Setup:** open https://ayushgade06.github.io/review-room/, or run `python -m http.server 8000` inside `web/` and open http://localhost:8000. Start at the top of the page. All numbers below are what the app shows.
 
 ---
 

@@ -6,7 +6,7 @@
 
 **Links**
 - Public GitHub repository: https://github.com/ayushgade06/review-room
-- Working prototype: `<GitHub Pages URL>` _(placeholder until deployed)_. It also runs locally with `python -m http.server` inside `web/`.
+- Working prototype: https://ayushgade06.github.io/review-room/ (static site; it also runs locally with `python -m http.server` inside `web/`).
 
 ---
 
