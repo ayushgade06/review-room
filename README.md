@@ -8,7 +8,6 @@ Built for **AQX Sports Analytics Data Bowl 4.0**, using 5,132 real reviews from 
 - **Code:** this repository
 - **Docs:** [Methodology](docs/METHODOLOGY.md) · [Research & idea selection](docs/RESEARCH.md) · [Data sources & licences](docs/DATA_SOURCES.md) · [Demo script](docs/DEMO_SCRIPT.md) · [Submission text](docs/SUBMISSION.md)
 
-![Review Room screenshot](docs/screenshot.png)
 
 ## What we found
 
@@ -61,9 +60,9 @@ Requires Python 3.12 and, for the JS tests, Node 20+.
 
 ```bash
 pip install -r requirements.txt
-python pipeline/parse.py     # Cricsheet zips -> ball-level tables (~1 min)
-python pipeline/wp.py        # win-probability models + validation + browser grid (~2 min)
-python pipeline/drs.py       # review economics, tests, app data (~1 min)
+python pipeline/parse.py     # Cricsheet zips -> ball-level tables
+python pipeline/wp.py        # win-probability models + validation + browser grid
+python pipeline/drs.py       # review economics, tests, app data  (whole pipeline ~10 min on a laptop)
 python -m pytest -q tests/   # 7 tests: parsing, review accounting, break-even, leakage
 node --test tests/           # 4 tests: browser engine reproduces the Python numbers
 ```
