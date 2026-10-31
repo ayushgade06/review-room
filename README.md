@@ -58,8 +58,8 @@ A "point" means one percentage point: if a team goes from 40% to 46% to win, tha
    ![Review Room](docs/img/4-review-room.png)
 4. **The price of a challenge.** A heat map of how sure you need to be, for every over and match situation.
 5. **Do teams challenge enough?** Success rates compared with the bar, the "last challenge" effect, and the batters who never challenged.
-6. **Team audit.** How much win chance each team has gained from its own challenges.
-7. **Can you trust the numbers?** How the model was tested on matches it had never seen.
+
+A separate **Evidence & method** page (`web/evidence.html`) holds the team audit, the model tests and the method, so the main page stays focused on the story.
 
 ## How it works, in plain English
 

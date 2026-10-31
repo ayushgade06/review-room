@@ -37,7 +37,7 @@ Scroll to **Do teams challenge enough?**
 
 ### 1:15–1:30 · Trust and close
 
-Scroll to **Can you trust the numbers?**
+Click **Evidence & method →** (top right) and scroll to **Can you trust the numbers?**
 
 > "The model learned from matches before 2024 and was graded on 2,813 later matches it had never seen. When it says 70%, teams win about 70% of the time. And one honest negative: no model can predict which challenges win from the match situation alone. Only the player sees the ball, so the tool asks for their confidence instead of pretending.
 > **Bottom line: in T20 cricket a challenge is cheap and a call is expensive. Teams should challenge far more often.**"

@@ -18,19 +18,19 @@
     <span>Review<b>Room</b></span>
   </a>
   <nav aria-label="Sections">
-    <a href="#room">Review Room</a><a href="#map">Price map</a><a href="#behaviour">Captains</a><a href="#audit">Team audit</a><a href="#evidence">Evidence</a><a href="#method">Method</a>
+    <a href="#primer">New to cricket?</a><a href="#policy">Cheat sheet</a><a href="#room">Review Room</a><a href="#behaviour">Findings</a><a class="nav-cta" href="evidence.html">Evidence &amp; method →</a>
   </nav>
 </header>
 
 <main id="top">
   <section class="hero">
     <div class="hero-copy">
-      <p class="kicker">Cricket's version of the NFL challenge flag · 5,132 real challenges analysed</p>
-      <h1>When should a captain <em>throw the challenge flag?</em></h1>
-      <p class="lede" id="lede">In cricket, a team can challenge an umpire's call with video replay — just like an NFL coach's red flag or an MLB manager's challenge. We worked out how sure a team needs to be before challenging, using every recorded challenge in men's T20 cricket.</p>
-      <div class="cta"><a class="btn primary" href="#room">Enter the Review Room</a><a class="btn" href="#primer">New to cricket? 60-second primer</a></div>
+      <p class="kicker">Cricket's version of the NFL challenge flag</p>
+      <h1>When should a team <em>challenge the umpire?</em></h1>
+      <p class="lede" id="lede"></p>
+      <div class="cta"><a class="btn primary" href="#room">Try the Review Room</a><a class="btn" href="#primer">New to cricket?</a></div>
     </div>
-    <figure class="hero-viz" aria-label="Illustration: ball tracking towards the stumps, with the break-even confidence">
+    <figure class="hero-viz" aria-label="Illustration: a ball tracking towards the stumps, with what a call is worth and what a failed challenge costs">
       <svg viewBox="0 0 420 300" role="img" aria-hidden="true">
         <defs>
           <linearGradient id="pitch" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#1a231e"/><stop offset="1" stop-color="#2a2a20"/></linearGradient>
@@ -42,13 +42,10 @@
         <g class="stumps"><rect x="196" y="58" width="5" height="40" rx="1.5"/><rect x="207.5" y="58" width="5" height="40" rx="1.5"/><rect x="219" y="58" width="5" height="40" rx="1.5"/><rect x="194" y="54" width="32" height="3" rx="1.5"/></g>
         <circle cx="214" cy="92" r="9" fill="var(--ball)" class="ballmark"/>
         <g class="hud" font-family="JetBrains Mono, monospace" font-size="11">
-          <text x="18" y="70" fill="#858a82">A CALL IS WORTH</text><text x="18" y="92" class="hudv" id="hud-g">—</text>
-          <text x="18" y="132" fill="#858a82">A FAILED CHALLENGE COSTS</text><text x="18" y="154" class="hudv" id="hud-l">—</text>
-          <text x="316" y="70" fill="#858a82">SURE ENOUGH AT</text><text x="316" y="92" class="hudv big" id="hud-p">—</text>
-          <text x="316" y="132" fill="#858a82">OVERTURNED</text><text x="316" y="154" class="hudv" id="hud-o">—</text>
+          <text x="18" y="70" fill="#858a82">A CALL IS WORTH</text><text x="18" y="96" class="hudv big" id="hud-g">—</text>
+          <text x="296" y="70" fill="#858a82">A LOST CHALLENGE</text><text x="296" y="96" class="hudv" id="hud-l">—</text>
         </g>
       </svg>
-      <figcaption>Typical values across 5,132 challenges. "Points" = percentage points of win chance: going from 40% to 46% to win is +6 points.</figcaption>
     </figure>
     <ul class="tiles" id="tiles" aria-label="Headline numbers"></ul>
   </section>
@@ -56,29 +53,29 @@
   <section id="primer" class="sec primer">
     <header class="sec-head">
       <p class="num">00</p>
-      <div><h2>New to cricket? Start here</h2><p>You only need four ideas to follow everything on this page.</p></div>
+      <div><h2>New to cricket?</h2><p>Four ideas, and you can follow everything here.</p></div>
     </header>
     <ol class="steps">
-      <li><b>A wicket is an out.</b> Each team bats once, for up to 120 balls (a T20 match), and is done after 10 outs. Losing a batter is a big deal — like an out with the bases loaded.</li>
-      <li><b>The umpire makes a call.</b> On the spot, the umpire rules a batter "out" or "not out". The most disputed calls are <i>LBW</i> (the ball hit the batter's leg when it would have hit the stumps) and thin catches.</li>
-      <li><b>Either team can challenge it — that's DRS.</b> The Decision Review System is cricket's replay challenge: the same idea as the NFL red flag, MLB's manager challenge or a tennis Hawk-Eye challenge. Video and ball-tracking decide.</li>
-      <li><b>Challenges are limited.</b> A team can lose two challenges per innings in most leagues. If the replay is too close to call ("umpire's call"), the original decision stands but the team keeps its challenge.</li>
+      <li><b>A wicket is an out.</b> Each team bats once: 120 balls or 10 outs. Losing a batter hurts, like an out with the bases loaded.</li>
+      <li><b>The umpire calls it.</b> "Out" or "not out", on the spot. The most disputed calls are <i>LBW</i>: the ball hit the leg but would have hit the stumps.</li>
+      <li><b>Either team can challenge.</b> That's DRS, cricket's replay review. Same idea as the NFL red flag or a tennis Hawk-Eye challenge.</li>
+      <li><b>Challenges are limited.</b> Two failed ones per innings. If the replay is too close to call ("umpire's call"), the team keeps its challenge.</li>
     </ol>
-    <p class="takeaway">So every challenge is a small bet: <b>risk a challenge you might need later, to fix a call that might cost you the game.</b> This project measures both sides of that bet in "win chance" — the percentage chance each team wins, updated after every ball, like the win-probability line on a TV broadcast.</p>
+    <p class="takeaway">Every challenge is a bet: <b>risk a challenge you might need later, to fix a call that might cost you the game.</b> We measure both sides in win chance, like a TV win-probability line.</p>
   </section>
 
   <section id="policy" class="sec">
     <header class="sec-head">
-      <p class="num">★</p>
-      <div><h2>The cheat sheet</h2><p>A one-screen challenge policy a coach could pin in the dressing room. Each cell is how sure a player needs to be that the umpire got it wrong — in 9 of 10 match situations of that type.</p></div>
+      <p class="num">01</p>
+      <div><h2>The cheat sheet</h2><p>A challenge policy to pin in the dressing room: how sure a player needs to be that the umpire is wrong.</p></div>
     </header>
     <div class="card"><div class="table-wrap" id="policy-table"></div><p class="note" id="policy-note"></p></div>
   </section>
 
-  <section id="room" class="sec">
+<section id="room" class="sec">
     <header class="sec-head">
-      <p class="num">01</p>
-      <div><h2>The Review Room</h2><p>Replay a real challenge, browse all 5,132, or build your own situation. For each one we show what the disputed call is worth, what a failed challenge would cost, and how sure the team needed to be. Then reveal what really happened.</p></div>
+      <p class="num">02</p>
+      <div><h2>The Review Room</h2><p>Pick a real challenge, set how sure you are, then reveal the replay verdict.</p></div>
     </header>
     <div class="modes" role="tablist" aria-label="Choose a situation">
       <button role="tab" aria-selected="true" data-mode="cases">Case files</button>
@@ -99,10 +96,10 @@
     </div>
   </section>
 
-  <section id="map" class="sec">
+<section id="map" class="sec">
     <header class="sec-head">
-      <p class="num">02</p>
-      <div><h2>The price of a challenge</h2><p>How sure you need to be, across every moment of a match. Each square is one over (a set of six balls) and one match situation. Light squares: be fairly sure before challenging. Dark squares: challenging is nearly free.</p></div>
+      <p class="num">03</p>
+      <div><h2>The price of a challenge</h2><p>Every over and match situation. Light: be fairly sure first. Dark: challenging is nearly free.</p></div>
     </header>
     <div class="filters" id="map-filters"></div>
     <div class="card chart-card"><div id="heatmap" class="chart"></div><div id="heat-legend" class="legend"></div>
@@ -110,13 +107,13 @@
     <p class="takeaway" id="map-takeaway"></p>
   </section>
 
-  <section id="behaviour" class="sec">
+<section id="behaviour" class="sec">
     <header class="sec-head">
-      <p class="num">03</p>
-      <div><h2>Do teams challenge enough?</h2><p>If teams only challenged when they were sure enough, their success rate would sit just above the "sure enough" bar. Instead it sits far above it, in every part of the match. That means teams are leaving cheap challenges unused.</p></div>
+      <p class="num">04</p>
+      <div><h2>Do teams challenge enough?</h2><p>Teams win far more challenges than they need to. That means they hold back too often.</p></div>
     </header>
     <div class="grid2">
-      <div class="card chart-card"><h3>How often challenges win vs how often they need to</h3><div id="phase-chart" class="chart"></div><div class="legend" id="phase-legend"></div>
+      <div class="card chart-card"><h3>Success rate vs the bar</h3><div id="phase-chart" class="chart"></div><div class="legend" id="phase-legend"></div>
         <details><summary>Data table</summary><div class="table-wrap" id="phase-table"></div></details></div>
       <div class="card chart-card"><h3>Teams get pickier with their last challenge</h3><div id="last-chart" class="chart"></div><p class="note" id="last-note"></p></div>
     </div>
@@ -126,48 +123,10 @@
     </div>
   </section>
 
-  <section id="audit" class="sec">
-    <header class="sec-head">
-      <p class="num">04</p>
-      <div><h2>Team audit</h2><p>How much each team has gained from its own challenges, counted in wins (100 points of win chance = one extra win). A successful challenge adds what the call was worth; a failed one subtracts what the lost challenge was worth; "umpire's call" costs nothing.</p></div>
-    </header>
-    <div class="filters" id="audit-filters"></div>
-    <div class="table-wrap card"><table class="data" id="audit-table"></table></div>
-    <p class="hint">Teams with at least 15 challenges. Brackets show the plausible range (95% interval). "Expected" is the success rate an average team would get with the same mix of challenges.</p>
-  </section>
-
-  <section id="evidence" class="sec">
-    <header class="sec-head">
-      <p class="num">05</p>
-      <div><h2>Can you trust the numbers?</h2><p>The win-chance model learned from matches before 2024 and was graded on 2,813 matches from 2024–26 that it had never seen — like back-testing a betting model on future seasons. Lower "log loss" and "Brier" scores mean more accurate forecasts.</p></div>
-    </header>
-    <div class="grid2">
-      <div class="card chart-card"><h3>When the model says 70%, does the team win 70% of the time?</h3><div id="calib-chart" class="chart"></div><div class="legend" id="calib-legend"></div></div>
-      <div class="card"><h3>Our model vs simpler alternatives (2024–26 matches)</h3><div class="table-wrap" id="wp-table"></div><p class="note" id="wp-note"></p></div>
-    </div>
-    <div class="grid2">
-      <div class="card chart-card"><h3>What makes a challenge more likely to succeed?</h3><div id="forest" class="chart"></div><p class="note">Right of the 1× line = more likely to succeed; left = less likely. Bars show the plausible range; faded rows are not clearly different from 1×. (Logistic regression on all 5,132 challenges.)</p></div>
-      <div class="card"><h3>Can a model predict which challenges will win?</h3><div class="table-wrap" id="rev-table"></div><p class="note" id="rev-note"></p></div>
-    </div>
-    <div class="card"><h3>Does the main finding survive tougher assumptions?</h3><div class="table-wrap" id="sens-table"></div><p class="note">Share of real challenge decisions where a team needed less than 10% confidence — even if a saved challenge were worth three times our estimate.</p></div>
-  </section>
-
-  <section id="method" class="sec method">
-    <header class="sec-head">
-      <p class="num">06</p>
-      <div><h2>Method &amp; limits</h2></div>
-    </header>
-    <div class="grid3">
-      <div><h3>The bet, in one line</h3>
-        <p>Challenge if <span class="eq">your confidence × what the call is worth</span> is bigger than <span class="eq">your doubt × what a lost challenge costs</span>.</p>
-        <p>Rearranged, the minimum confidence is <span class="eq">p* = (1 − u)L / (G + (1 − u)L)</span>, where <b>G</b> is what the call is worth, <b>L</b> what a failed challenge costs, and <b>u</b> the share of failures that are "umpire's call" (challenge kept).</p></div>
-      <div><h3>How the pieces are measured</h3>
-        <p><b>What a call is worth:</b> the drop in win chance from losing that batter, from a model trained on 8,897 matches — think of a TV win-probability line. <b>What a failed challenge costs:</b> how much win chance teams typically gain later from the challenges they still hold, measured from real matches. <b>Challenges left:</b> rebuilt from the order of challenges in each innings; it matches the IPL's 2022 rule change from one to two.</p></div>
-      <div><h3>What this does not claim</h3>
-        <p>We cannot see calls nobody challenged, and we have no ball-tracking data, so the player's own read of the ball is the missing ingredient — the tool asks for it rather than guessing it. All numbers are estimates, and patterns in behaviour are not proof of cause and effect.</p></div>
-    </div>
-    <p class="attr">Contains information from <a href="https://cricsheet.org/">Cricsheet</a>, made available under the <a href="https://opendatacommons.org/licenses/by/1-0/">ODC Attribution License 1.0</a>. Not affiliated with or endorsed by Cricsheet, the ICC or any league. Full methodology: <a href="https://github.com/ayushgade06/review-room/blob/main/docs/METHODOLOGY.md">docs/METHODOLOGY.md</a>.</p>
-  </section>
+  <footer class="sec foot">
+    <p><a class="btn" href="evidence.html">See the evidence &amp; method →</a></p>
+    <p class="attr">Data: <a href="https://cricsheet.org/">Cricsheet</a> (<a href="https://opendatacommons.org/licenses/by/1-0/">ODC-By 1.0</a>). Not affiliated with Cricsheet, the ICC or any league. <a href="https://github.com/ayushgade06/review-room">Source on GitHub</a>.</p>
+  </footer>
 </main>
 <div class="tip" id="tip" role="tooltip" hidden></div>
 <noscript><p class="noscript">Review Room needs JavaScript to run its model in your browser.</p></noscript>

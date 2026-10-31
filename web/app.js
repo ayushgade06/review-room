@@ -43,7 +43,8 @@ async function main() {
   GRID = loadGrid(g); S = s; SCEN = sc; WPV = wpv;
   const c = Object.fromEntries(rv.columns.map((k, i) => [k, i]));
   ROWS = rv.rows.map((r) => Object.fromEntries(Object.keys(c).map((k) => [k, r[c[k]]])));
-  hero(); policy(); room(); heatmap(); behaviour(); audit(); evidence();
+  [["#lede", hero], ["#policy", policy], ["#room", room], ["#map", heatmap], ["#behaviour", behaviour], ["#audit", audit], ["#evidence", evidence]]
+    .forEach(([sel, f]) => $(sel) && f());
 }
 
 function baseRate(side, over) {
@@ -56,14 +57,11 @@ function hero() {
   const live = S.sensitivity.base, lbw = S.unreviewed_lbw;
   $("#hud-g").textContent = `${pts(S.median_G)} pts`;
   $("#hud-l").textContent = `${pts(S.median_L, 2)} pts`;
-  $("#hud-p").textContent = pStarTxt(live.median_p_star);
-  $("#hud-o").textContent = pct(S.upheld);
-  $("#lede").innerHTML = `In cricket, a team can challenge an umpire's call with video replay — like an NFL coach's red flag or an MLB manager's challenge. A disputed call is typically worth <strong>${pts(S.median_G)} points</strong> of win chance; a challenge kept in reserve is worth only <strong>${pts(S.median_L, 2)}</strong>. So in <strong>${pct(live.share_p_star_below_10, 0)}</strong> of real challenge decisions, a team needed less than a 1-in-10 belief that the umpire was wrong for challenging to pay off.`;
+  $("#lede").innerHTML = `Teams win <strong>${pct(S.upheld, 0)}</strong> of their replay challenges. To be worth it, they only need to win <strong>${pStarTxt(live.median_p_star)}</strong>. They should challenge far more often.`;
   const tiles = [
-    [S.n_reviews.toLocaleString(), `real challenges analysed, from ${S.n_matches.toLocaleString()} matches in ${S.comps.length} leagues (${S.seasons[0]}–${S.seasons[1]})`],
-    [pct(S.upheld), "of challenges overturn the umpire"],
-    [pStarTxt(live.median_p_star), `typical confidence needed to challenge — ${oneIn(live.median_p_star)} the umpire is wrong`],
-    [lbw.live.toLocaleString(), `batters given out who walked off without challenging — with a challenge still unused`],
+    [S.n_reviews.toLocaleString("en-US"), `real challenges, ${S.comps.length} leagues, ${S.seasons[0]}–${S.seasons[1]}`],
+    [pct(live.share_p_star_below_10, 0), "of decisions needed under 1-in-10 confidence"],
+    [lbw.live.toLocaleString("en-US"), "batters walked off out with a challenge unused"],
   ];
   $("#tiles").innerHTML = tiles.map(([v, k]) => `<li><div class="v">${v}</div><div class="k">${esc(k)}</div></li>`).join("");
 }
@@ -81,7 +79,7 @@ function policy() {
     const p = q90(S.threshold_map.filter((c) => c.role === role && c.k === k && c.over >= lo && c.over <= hi)); worst = Math.max(worst, p); return p; }) }));
   const cell = (p) => `<b>${oneIn(p).replace("a ", "")}</b><br><span class="note">${pStarTxt(p)}</span>`;
   $("#policy-table").innerHTML = `<table class="data policy"><thead><tr><th>When</th>${cols.map((c) => `<th class="n">${esc(c[2])}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr><td>${esc(r.label)}</td>${r.v.map((p) => `<td class="n">${cell(p)}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
-  $("#policy-note").innerHTML = `How to read it: "1-in-30 chance" means challenge if you think there's at least a 1-in-30 chance the umpire is wrong. <b>The simple team rule: unless you're about ${Math.round((1 - worst) * 100)}% sure the umpire is right, challenge.</b> Both innings combined; each cell covers 90% of match situations of that type, so most moments need even less. Very lopsided matches (almost won or lost) are where challenging matters least.`;
+  $("#policy-note").innerHTML = `<b>The team rule: unless you're about ${Math.round((1 - worst) * 100)}% sure the umpire is right, challenge.</b> Each cell covers 9 in 10 situations of that type; most need even less.`;
 }
 
 // ---------- normalise a situation for the room
@@ -125,21 +123,18 @@ function overTxt(legal) { return `${Math.floor(legal / 6)}.${legal % 6}`; }
 
 function renderState(sc) {
   const need = sc.inning === 2 ? sc.target - sc.runs : null;
-  const sideTxt = sc.side === "bat" ? "batting side" : "fielding side";
   const dots = Array.from({ length: sc.limit || 2 }, (_, i) => `<i class="${i < sc.k ? "on" : ""}"></i>`).join("");
   const meta = sc.kind === "custom" ? "Custom situation" : `${esc(sc.comp)} · ${sc.season} · ${esc(sc.date || "")}${sc.event ? " · " + esc(sc.event) : ""}`;
   $("#state").innerHTML = `
     <div class="meta">${meta}</div>
     <h3 class="title">${sc.kind === "custom" ? "Your situation" : `${esc(sc.bat_team)} <span style="color:var(--muted)">v</span> ${esc(sc.bowl_team)}`}</h3>
-    <div class="score"><span class="big mono">${sc.runs}/${sc.wkts}</span><span class="sub">runs/outs after ${overTxt(sc.legal)} of 20 overs · ${sc.inning === 1 ? "batting first" : "chasing"}</span>
+    <div class="score"><span class="big mono">${sc.runs}/${sc.wkts}</span><span class="sub">${sc.inning === 1 ? "batting first" : "chasing"} · over ${overTxt(sc.legal)} of 20</span>
       ${need != null ? `<span class="sub">need <b>${need}</b> off <b>${120 - sc.legal}</b>${sc.target ? ` · target ${sc.target}` : ""}</span>` : ""}</div>
     <dl class="facts">
-      <div><dt>${sc.kind === "unreviewed" ? "Did not challenge" : "Challenged by"}</dt><dd>${esc(sc.by || (sc.side === "bat" ? "Batting side" : "Fielding side"))} <span style="color:var(--muted)">(${sideTxt === "batting side" ? "batting team" : "fielding team"})</span></dd></div>
+      <div><dt>${sc.kind === "unreviewed" ? "Did not challenge" : "Challenged by"}</dt><dd>${esc(sc.by || (sc.side === "bat" ? "Batting team" : "Fielding team"))}</dd></div>
       ${sc.batter ? `<div><dt>Batter</dt><dd>${esc(sc.batter)}</dd></div>` : ""}
       ${sc.bowler ? `<div><dt>Bowler</dt><dd>${esc(sc.bowler)}</dd></div>` : ""}
-      ${sc.umpire ? `<div><dt>On-field umpire</dt><dd>${esc(sc.umpire)}</dd></div>` : ""}
       <div><dt>Challenges left</dt><dd><span class="dots" aria-label="${sc.k} of ${sc.limit || 2}">${dots}</span> ${sc.k} of ${sc.limit || 2}</dd></div>
-      <div><dt>League scoring level</dt><dd class="mono">${Math.round(sc.env)} <span style="color:var(--muted)">runs = typical first-innings total</span></dd></div>
     </dl>
     ${sc.worm ? worm(sc) : `<p class="note">${sc.kind === "custom" ? `Batting side's win probability now: <b>${pct(sc.wpBat)}</b>.` : "Ball-by-ball win-probability curves are drawn for the case files."}</p>`}`;
   bindTips($("#state"));
@@ -159,7 +154,7 @@ function worm(sc) {
   const xt = [0, 5, 10, 15, 20, 25, 30, 35, 40].map((t) => `<text class="lbl" x="${x(t)}" y="${H - 8}" text-anchor="middle">${t % 20 === 0 && t ? "20" : t % 20}</text>`).join("");
   const tipTxt = `<b>${outFinal ? "Out" : "Not out"}</b> (actual): ${pct(actual)}<br>${outFinal ? "Not out" : "Out"} instead: ${pct(alt)}<br>Swing at stake: <b>${pts(sc.G)} pts</b>`;
   return `<div class="chart" aria-label="Win probability curve for ${esc(sc.first_team)}">
-    <div class="meta" style="margin:14px 0 4px">Win chance of ${esc(sc.first_team)} (batted first), ball by ball · ${esc(sc.winner || "")} won</div>
+    <div class="meta" style="margin:14px 0 4px">${esc(sc.first_team)} win chance · ${sc.winner === sc.first_team ? "they won" : `${esc(sc.winner || "")} won`}</div>
     <svg viewBox="0 0 ${W} ${H}" role="img">
       ${ticks}${xt}
       <line x1="${x(20)}" x2="${x(20)}" y1="${m.t}" y2="${H - m.b}" stroke="var(--line)" stroke-dasharray="3 3"/>
@@ -168,7 +163,7 @@ function worm(sc) {
       <line x1="${x(xv)}" x2="${x(xv)}" y1="${y(actual)}" y2="${y(alt)}" stroke="var(--uc)" stroke-width="3"/>
       <circle cx="${x(xv)}" cy="${y(alt)}" r="5" fill="var(--panel)" stroke="var(--uc)" stroke-width="2"/>
       <circle cx="${x(xv)}" cy="${y(actual)}" r="6" fill="var(--uc)" stroke="var(--panel)" stroke-width="2"/>
-      <text class="lbl" x="${x(xv) + (xv > 30 ? -10 : 10)}" y="${(y(actual) + y(alt)) / 2 + 4}" text-anchor="${xv > 30 ? "end" : "start"}" class="halo" style="fill:var(--uc);font:600 12px var(--mono)">${pts(sc.G)} pts riding on this call</text>
+      <text class="lbl" x="${x(xv) + (xv > 30 ? -10 : 10)}" y="${(y(actual) + y(alt)) / 2 + 4}" text-anchor="${xv > 30 ? "end" : "start"}" class="halo" style="fill:var(--uc);font:600 12px var(--mono)">${pts(sc.G)} pts</text>
       <rect x="${x(xv) - 14}" y="${m.t}" width="28" height="${H - m.b - m.t}" fill="transparent" data-tip="${esc(tipTxt)}" tabindex="0"/>
     </svg></div>`;
 }
@@ -178,20 +173,20 @@ function renderDecide(sc) {
   belief = Math.min(0.99, Math.max(0.005, sc.pHat ?? 0.25));
   const ratio = sc.pHat && sc.pStar > 0 ? sc.pHat / sc.pStar : null;
   const verdict = sc.decided
-    ? `<b>Low stakes.</b> The match is basically decided — this call moves the win chance by under 0.2 points, so challenging barely matters either way.`
-    : `<b>Challenge if you think there is at least ${oneIn(sc.pStar)} the umpire is wrong (${pStarTxt(sc.pStar)}).</b> ${sc.pHat ? `Challenges like this have succeeded <b>${pct(sc.pHat, 0)}</b> of the time${ratio ? ` — ${ratio >= 10 ? "more than ten times" : ratio.toFixed(1) + "×"} the bar` : ""}.` : ""}`;
+    ? `<b>Low stakes.</b> The match is basically decided, so this call barely matters.`
+    : `<b>Challenge.</b> ${sc.pHat ? `Calls like this get overturned <b>${pct(sc.pHat, 0)}</b> of the time${ratio ? `, ${ratio >= 10 ? "over ten times" : ratio.toFixed(1) + "×"} the bar` : ""}.` : ""}`;
   $("#decide").innerHTML = `
     <div class="eqrow">
-      <div><div class="lab">What the call is worth</div><div class="val">${pts(sc.G)} <small>pts</small></div><div class="note" style="margin:0">win chance gained if the challenge succeeds</div></div>
-      <div><div class="lab">What a failed challenge costs</div><div class="val">${pts(sc.L, 2)} <small>pts</small></div><div class="note" style="margin:0">value of the challenge you would lose</div></div>
-      <div><div class="lab">Too close to call</div><div class="val">${pct(sc.u, 0)}</div><div class="note" style="margin:0">of failed challenges are "umpire's call" — the team keeps it</div></div>
+      <div title="Win chance gained if the challenge succeeds"><div class="lab">Call is worth</div><div class="val">${pts(sc.G)} <small>pts</small></div></div>
+      <div title="Value of the challenge you would lose"><div class="lab">Failed challenge costs</div><div class="val">${pts(sc.L, 2)} <small>pts</small></div></div>
+      <div title="Share of failed challenges ruled umpire's call: the team keeps its challenge"><div class="lab">Too close to call</div><div class="val">${pct(sc.u, 0)}</div></div>
     </div>
-    <div class="threshold"><div class="lab">How sure you need to be</div><div class="p">${sc.decided ? "—" : pStarTxt(sc.pStar)} <small>${sc.decided ? "nothing at stake" : "sure the umpire is wrong"}</small></div><div class="note" style="margin:4px 0 0">${sc.decided ? "" : `In plain terms: challenge if you see ${oneIn(sc.pStar)} the call is wrong.`}</div></div>
+    <div class="threshold"><div class="lab">How sure you need to be</div><div class="p">${sc.decided ? "—" : pStarTxt(sc.pStar)} <small>${sc.decided ? "nothing at stake" : `sure the umpire is wrong · ${oneIn(sc.pStar)}`}</small></div></div>
     <div class="belief">
       <div id="bbar"></div>
       <label class="note" for="bslider" style="display:block">Drag: how sure are you the umpire got it wrong? <b id="bval"></b></label>
       <input id="bslider" type="range" min="0" max="1000" step="1" value="${Math.round(Math.sqrt(belief) * 1000)}">
-      <div class="ev"><span id="evtxt"></span><span class="note" style="margin:0">The scale stretches the low end so small numbers stay visible.</span></div>
+      <div class="ev"><span id="evtxt"></span></div>
     </div>
     <div class="verdict"><p>${verdict}</p></div>
     ${sc.kind === "custom" ? "" : `<div class="reveal"><button class="btn" id="reveal">${sc.kind === "unreviewed" ? "What happened" : "Reveal the replay verdict"}</button><span id="stamp"></span></div>`}`;
@@ -249,7 +244,7 @@ function browse() {
       (!out || (out === "umpires_call" ? r.uc : out === "upheld" ? r.upheld : !r.upheld && !r.uc)) &&
       (!q || `${r.bat_team} ${r.bowl_team} ${r.rev_batter} ${r.rev_umpire}`.toLowerCase().includes(q)));
     rows.sort((a, b) => (sort === "date" ? (a.date < b.date ? 1 : -1) : b[sort] - a[sort]));
-    $("#browse-count").innerHTML = `${rows.length.toLocaleString()} challenges match. Showing ${Math.min(limit, rows.length)}. ${rows.length > limit ? '<button class="btn" id="more">Show more</button>' : ""}`;
+    $("#browse-count").innerHTML = `${rows.length.toLocaleString("en-US")} challenges match. Showing ${Math.min(limit, rows.length)}. ${rows.length > limit ? '<button class="btn" id="more">Show more</button>' : ""}`;
     $("#browse-table").innerHTML = `<thead><tr><th>Date</th><th>Comp</th><th>Match</th><th>Innings · over</th><th>Challenged by</th><th>Batter</th><th>Result</th><th class="n">Call worth</th><th class="n">Needed confidence</th></tr></thead><tbody>${rows.slice(0, limit).map((r) => {
       const o = OUTCOME[r.uc ? "umpires_call" : r.upheld ? "upheld" : "struck_down"];
       return `<tr class="click" tabindex="0" data-i="${ROWS.indexOf(r)}"><td>${esc(r.date)}</td><td>${esc(r.comp)}</td><td>${esc(r.bat_team)} v ${esc(r.bowl_team)}</td><td>${r.inning} · ${r.over + 1}</td><td>${r.rev_side === "bat" ? "Batting team" : "Fielding team"}</td><td>${esc(r.rev_batter)}</td><td><span class="tag ${o[1]}">${o[2]}</span></td><td class="n">${pts(r.G)}</td><td class="n">${r.decided ? "—" : pStarTxt(r.p_star)}</td></tr>`;
@@ -317,7 +312,7 @@ function heatmap() {
     for (let o = 0; o < 20; o++) for (let b = 0; b < 5; b++) {
       const c = byKey[`${o}|${b}`], X = m.l + o * cw, Y = m.t + (4 - b) * ch;
       if (!c) { out += `<rect x="${X + 1}" y="${Y + 1}" width="${cw - 2}" height="${ch - 2}" rx="3" fill="var(--panel2)" stroke="var(--line)" stroke-dasharray="2 2"/>`; continue; }
-      const t = `<b>Over ${o + 1}</b> · batting side ${b * 20}–${b * 20 + 20}% to win<br>The call is worth ${pts(c.G)} pts · a failed challenge costs ${pts(c.L, 2)} pts<br><b>Need to be ${pStarTxt(c.p_star)} sure</b> (${oneIn(c.p_star)}) · ${c.n.toLocaleString()} match moments`;
+      const t = `<b>Over ${o + 1}</b> · batting side ${b * 20}–${b * 20 + 20}% to win<br>The call is worth ${pts(c.G)} pts · a failed challenge costs ${pts(c.L, 2)} pts<br><b>Need to be ${pStarTxt(c.p_star)} sure</b> (${oneIn(c.p_star)}) · ${c.n.toLocaleString("en-US")} match moments`;
       out += `<rect class="cell" x="${X}" y="${Y}" width="${cw}" height="${ch}" rx="4" fill="var(--seq${binOf(c.p_star)})" data-tip="${esc(t)}" tabindex="0"/>`;
     }
     const yl = [0, 1, 2, 3, 4].map((b) => `<text class="lbl" x="${m.l - 8}" y="${m.t + (4 - b) * ch + ch / 2 + 4}" text-anchor="end">${b * 20}–${b * 20 + 20}%</text>`).join("");
@@ -328,7 +323,7 @@ function heatmap() {
     bindTips($("#heatmap"));
     const ps = cells.map((c) => c.p_star), under5 = ps.filter((p) => p < 0.05).length / ps.length, mx = cells.reduce((a, c) => (c.p_star > a.p_star ? c : a), cells[0]);
     $("#map-takeaway").innerHTML = `With ${st.k === 1 ? "only one challenge" : "two challenges"} left, the ${st.role === "bat" ? "batting" : "fielding"} team in the ${st.inning === 1 ? "first" : "second"} innings needs less than 5% confidence in <b>${pct(under5, 0)}</b> of match situations. The bar is highest (${pStarTxt(mx.p_star)}, ${oneIn(mx.p_star)}) in over ${mx.over + 1} when the batting team is ${mx.wp_bucket * 20}–${mx.wp_bucket * 20 + 20}% to win — a lopsided spot where one out matters least.`;
-    $("#heat-table").innerHTML = table([{ h: "Over", f: (c) => c.over + 1 }, { h: "Batting team win chance", f: (c) => `${c.wp_bucket * 20}–${c.wp_bucket * 20 + 20}%` }, { h: "Call worth (pts)", n: 1, f: (c) => pts(c.G, 2) }, { h: "Failed challenge costs (pts)", n: 1, f: (c) => pts(c.L, 3) }, { h: "Confidence needed", n: 1, f: (c) => pStarTxt(c.p_star) }, { h: "Match moments", n: 1, f: (c) => c.n.toLocaleString() }], cells);
+    $("#heat-table").innerHTML = table([{ h: "Over", f: (c) => c.over + 1 }, { h: "Batting team win chance", f: (c) => `${c.wp_bucket * 20}–${c.wp_bucket * 20 + 20}%` }, { h: "Call worth (pts)", n: 1, f: (c) => pts(c.G, 2) }, { h: "Failed challenge costs (pts)", n: 1, f: (c) => pts(c.L, 3) }, { h: "Confidence needed", n: 1, f: (c) => pStarTxt(c.p_star) }, { h: "Match moments", n: 1, f: (c) => c.n.toLocaleString("en-US") }], cells);
   };
   draw();
 }
@@ -344,7 +339,7 @@ function dotRows({ el, rows, series, max = 0.5, extra }) {
     series.forEach((se, j) => {
       const d = r[se.key]; if (!d) return;
       const yy = cy + (j - (series.length - 1) / 2) * 11;
-      const t = `<b>${esc(r.label)} · ${esc(se.name)}</b><br>${pct(d.v)} overturned (95% CI ${pct(d.ci[0], 0)}–${pct(d.ci[1], 0)})<br>${d.n.toLocaleString()} reviews`;
+      const t = `<b>${esc(r.label)} · ${esc(se.name)}</b><br>${pct(d.v)} overturned (95% CI ${pct(d.ci[0], 0)}–${pct(d.ci[1], 0)})<br>${d.n.toLocaleString("en-US")} reviews`;
       s += `<line x1="${x(d.ci[0])}" x2="${x(d.ci[1])}" y1="${yy}" y2="${yy}" stroke="${se.color}" stroke-width="2" stroke-linecap="round"/>
             <circle cx="${x(d.v)}" cy="${yy}" r="5.5" fill="${se.color}" stroke="var(--panel)" stroke-width="2" data-tip="${esc(t)}" tabindex="0"/>`;
     });
@@ -373,14 +368,14 @@ function behaviour() {
     series: [{ key: "spare", name: "Spare challenge in hand", color: "#199e70" }, { key: "last", name: "Last challenge", color: "#9085e9" }],
   });
   const lr = S.coefficients.find((c) => c.term === "last_review");
-  $("#last-note").innerHTML = `<span style="color:#199e70">●</span> spare challenge in hand &nbsp; <span style="color:#9085e9">●</span> last challenge. With their last challenge, teams only use it when surer — the odds of winning it are <b>${lr.odds_ratio.toFixed(2)}×</b> higher (plausible range ${Math.exp(lr.lo).toFixed(2)}–${Math.exp(lr.hi).toFixed(2)}×, after accounting for game situation). Sensible instinct, but too cautious: even the last challenge typically needs only ${pStarTxt(medianP((r) => r.k === 1))} confidence.`;
+  $("#last-note").innerHTML = `<span style="color:#199e70">●</span> spare challenge in hand &nbsp; <span style="color:#9085e9">●</span> last challenge. With their last one, teams wait until they're surer (<b>${lr.odds_ratio.toFixed(2)}×</b> the odds of success). Yet it still typically needs only ${pStarTxt(medianP((r) => r.k === 1))} confidence.`;
 
   const u = S.unreviewed_lbw;
-  $("#lbw-stat").innerHTML = `<div class="v">${u.live}</div><p>batters given out LBW who walked off <b>without challenging</b>, even though their team still had a challenge left. At those moments they typically needed only <b>${pStarTxt(u.median_p_star)}</b> confidence (${oneIn(u.median_p_star)}) to make challenging worthwhile.</p>
-    <p>Some were surely plainly out — we can't see that. But if each had been even 1-in-10 sure the umpire was wrong, challenging every time would have added about <b>+${u.ev_if_belief["0.1"].toFixed(1)} wins</b> in total (+${u.ev_if_belief["0.05"].toFixed(1)} at 1-in-20).</p>`;
+  $("#lbw-stat").innerHTML = `<div class="v">${u.live}</div><p>batters given out LBW walked off <b>without challenging</b>, with a challenge still unused. They typically needed only <b>${pStarTxt(u.median_p_star)}</b> confidence (${oneIn(u.median_p_star)}).</p>
+    <p>At even a 1-in-10 belief each, challenging them all was worth about <b>+${u.ev_if_belief["0.1"].toFixed(1)} wins</b>.</p>`;
   $("#lbw-table").innerHTML = table([
-    { h: "Date", k: "date" }, { h: "Comp", k: "comp" }, { h: "Batter", k: "player_out" }, { h: "Match", f: (r) => `${esc(r.bat_team)} v ${esc(r.bowl_team)}` },
-    { h: "Situation", f: (r) => `innings ${r.inning} · over ${r.over + 1} · ${r.runs_before} runs, ${r.wkts_before} out${r.inning === 2 ? ` · chasing ${r.target}` : ""}` },
+    { h: "Date", k: "date" }, { h: "League", k: "comp" }, { h: "Batter", k: "player_out" }, { h: "Match", f: (r) => `${esc(r.bat_team)} v ${esc(r.bowl_team)}` },
+    { h: "Situation", f: (r) => `over ${r.over + 1}, ${r.runs_before}/${r.wkts_before}${r.inning === 2 ? ` of ${r.target}` : ""}` },
     { h: "Call worth", n: 1, f: (r) => `${pts(r.G)} pts` }, { h: "Confidence needed", n: 1, f: (r) => pStarTxt(r.p_star) }], u.examples.slice(0, 10));
 }
 function medianP(pred) { const a = ROWS.filter((r) => !r.decided && pred(r)).map((r) => r.p_star).sort((x, y) => x - y); return a[Math.floor(a.length / 2)]; }
@@ -391,12 +386,12 @@ function audit() {
   $("#audit-filters").innerHTML = `<label>Competition<select id="a-comp"><option value="">All</option>${comps.map((c) => `<option ${c === "IPL" ? "selected" : ""}>${esc(c)}</option>`).join("")}</select></label>`;
   let sortKey = "net_wp";
   const cols = [
-    { h: "Team", k: "team" }, { h: "Comp", k: "comp" }, { h: "Seasons", k: "seasons" }, { h: "Reviews", k: "n", n: 1, s: 1 },
-    { h: "Overturned", k: "upheld", n: 1, s: 1, f: (t) => `${pct(t.upheld)} <span class="note">(${pct(t.ci[0], 0)}–${pct(t.ci[1], 0)})</span>` },
-    { h: "Expected", k: "expected", n: 1, s: 1, f: (t) => pct(t.expected) },
+    { h: "Team", k: "team" }, { h: "League", k: "comp" }, { h: "Seasons", k: "seasons" }, { h: "Challenges", k: "n", n: 1, s: 1 },
+    { h: "Won", k: "upheld", n: 1, s: 1, f: (t) => `${pct(t.upheld)} <span class="note">(${pct(t.ci[0], 0)}–${pct(t.ci[1], 0)})</span>` },
+    { h: "Typical team", k: "expected", n: 1, s: 1, f: (t) => pct(t.expected) },
     { h: "vs expected", k: "over_expected", n: 1, s: 1, f: (t) => `${t.over_expected >= 0 ? "+" : "−"}${pts(Math.abs(t.over_expected))}` },
     { h: "Net gain (wins)", k: "net_wp", n: 1, s: 1, f: (t) => `${t.net_wp >= 0 ? "+" : "−"}${Math.abs(t.net_wp).toFixed(2)}` },
-    { h: "Pts per review", k: "per_review", n: 1, s: 1, f: (t) => `${pts(t.per_review, 2)}` },
+    { h: "Pts per challenge", k: "per_review", n: 1, s: 1, f: (t) => `${pts(t.per_review, 2)}` },
   ];
   const run = () => {
     const c = $("#a-comp").value;
@@ -418,7 +413,7 @@ function evidence() {
   [["1", "var(--bat)", "1st innings"], ["2", "var(--bowl)", "2nd innings"]].forEach(([k, col, name]) => {
     const c = WPV.innings[k].calibration_gbm;
     s += `<path d="${c.map((p, i) => `${i ? "L" : "M"}${x(p.pred)},${y(p.obs)}`).join("")}" fill="none" stroke="${col}" stroke-width="2"/>`;
-    s += c.map((p) => `<circle cx="${x(p.pred)}" cy="${y(p.obs)}" r="5" fill="${col}" stroke="var(--panel)" stroke-width="2" data-tip="${esc(`<b>${name}</b><br>Predicted ${pct(p.pred)} · observed ${pct(p.obs)}<br>${p.n.toLocaleString()} ball states`)}" tabindex="0"/>`).join("");
+    s += c.map((p) => `<circle cx="${x(p.pred)}" cy="${y(p.obs)}" r="5" fill="${col}" stroke="var(--panel)" stroke-width="2" data-tip="${esc(`<b>${name}</b><br>Predicted ${pct(p.pred)} · observed ${pct(p.obs)}<br>${p.n.toLocaleString("en-US")} ball states`)}" tabindex="0"/>`).join("");
   });
   s += `<text class="lbl" x="${(W + m.l) / 2}" y="${H - 4}" text-anchor="middle">PREDICTED WIN PROBABILITY</text><text class="lbl" x="12" y="${H / 2}" transform="rotate(-90 12 ${H / 2})" text-anchor="middle">OBSERVED WIN RATE</text>`;
   $("#calib-chart").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Calibration plot">${s}</svg>`;
@@ -429,19 +424,18 @@ function evidence() {
   const models = [["constant", "Coin flip (always 50/50)"], ["logistic", "Standard textbook model"], ["gbm_absolute", "Our model on raw run totals"], ["gbm", "Our model, scoring-adjusted (used)"]];
   $("#wp-table").innerHTML = table([
     { h: "Model", f: (r) => esc(r[1]) },
-    { h: "Error, team batting first", n: 1, f: (r) => f4(I["1"][r[0]].log_loss) }, { h: "Error, chasing team", n: 1, f: (r) => f4(I["2"][r[0]].log_loss) },
-    { h: "Brier, batting first", n: 1, f: (r) => f4(I["1"][r[0]].brier) }, { h: "Brier, chasing", n: 1, f: (r) => f4(I["2"][r[0]].brier) },
-    { h: "Error, IPL chases only", n: 1, f: (r) => (I["2"].ipl_only[r[0]] ? f4(I["2"].ipl_only[r[0]].log_loss) : "—") },
+    { h: "Batting first", n: 1, f: (r) => f4(I["1"][r[0]].log_loss) }, { h: "Chasing", n: 1, f: (r) => f4(I["2"][r[0]].log_loss) },
+    { h: "IPL chases", n: 1, f: (r) => (I["2"].ipl_only[r[0]] ? f4(I["2"].ipl_only[r[0]].log_loss) : "—") },
   ], models);
   $("#wp-table tbody tr:last-child")?.classList.add("ours");
   const d1 = I["1"].logloss_diff_gbm_minus_lr, d2 = I["2"].logloss_diff_gbm_minus_lr, a2 = I["2"].logloss_diff_gbm_minus_absolute;
-  $("#wp-note").innerHTML = `Graded on ${I["1"].test_matches.toLocaleString()} unseen matches from 2024–26 (${(I["1"].test_rows + I["2"].test_rows).toLocaleString()} ball-by-ball forecasts). Error scores: lower is better. Our model beats the textbook model for both innings, and the gap holds when we re-sample matches (improvement ${f4(-d1.est)} and ${f4(-d2.est)}, with 95% ranges that stay above zero). <b>Lesson learned:</b> a first version that read raw run totals failed on recent IPL chases, because the league now scores far more than in any earlier season (average first-innings totals of ${I["2"].env_test_ipl_range.map(Math.round).join("–")}, versus 99% of past games below ${Math.round(I["2"].env_train_q99 ?? 182)}). Measuring runs against each league's recent "par" — like comparing an NBA team's points to the league's pace that year — fixed it.`;
+  $("#wp-note").innerHTML = `Graded on ${I["1"].test_matches.toLocaleString("en-US")} unseen matches from 2024–26 (${(I["1"].test_rows + I["2"].test_rows).toLocaleString("en-US")} ball-by-ball forecasts). Error scores: lower is better. Our model beats the textbook model for both innings, and the gap holds when we re-sample matches (improvement ${f4(-d1.est)} and ${f4(-d2.est)}, with 95% ranges that stay above zero). <b>Lesson learned:</b> a first version that read raw run totals failed on recent IPL chases, because the league now scores far more than in any earlier season (average first-innings totals of ${I["2"].env_test_ipl_range.map(Math.round).join("–")}, versus 99% of past games below ${Math.round(I["2"].env_train_q99 ?? 182)}). Measuring runs against each league's recent "par" — like comparing an NBA team's points to the league's pace that year — fixed it.`;
 
   // review model
   const R = S.review_model, rm = [["constant", "Same guess for every challenge"], ["side_only", "Only knows which team challenged"], ["logistic", "Knows the full match situation"]];
-  $("#rev-table").innerHTML = table([{ h: "Model", f: (r) => r[1] }, { h: "Error (log loss)", n: 1, f: (r) => f4(R.models[r[0]].log_loss) }, { h: "Brier", n: 1, f: (r) => f4(R.models[r[0]].brier) }, { h: "Ranking skill (AUC)", n: 1, f: (r) => R.models[r[0]].auc.toFixed(3) }], rm);
+  $("#rev-table").innerHTML = table([{ h: "Model", f: (r) => r[1] }, { h: "Error (log loss)", n: 1, f: (r) => f4(R.models[r[0]].log_loss) }, { h: "Ranking skill (AUC)", n: 1, f: (r) => R.models[r[0]].auc.toFixed(3) }], rm);
   const dd = R.logloss_diff_logistic_minus_side;
-  $("#rev-note").innerHTML = `Trained on ${R.train_n.toLocaleString()} challenges before 2025, graded on ${R.test_n.toLocaleString()} from 2025–26. <b>An honest negative result:</b> knowing the match situation does not predict challenge outcomes better than knowing which team challenged (difference ${f4(dd.est)}, plausible range ${f4(dd.ci95[0])} to ${f4(dd.ci95[1])} — indistinguishable from zero). Whether a challenge wins depends on the ball itself, which the player sees and our data doesn't. That is why the Review Room asks for the player's confidence instead of pretending to predict it.`;
+  $("#rev-note").innerHTML = `Trained on ${R.train_n.toLocaleString("en-US")} challenges before 2025, graded on ${R.test_n.toLocaleString("en-US")} from 2025–26. <b>An honest negative result:</b> knowing the match situation does not predict challenge outcomes better than knowing which team challenged (difference ${f4(dd.est)}, plausible range ${f4(dd.ci95[0])} to ${f4(dd.ci95[1])} — indistinguishable from zero). Whether a challenge wins depends on the ball itself, which the player sees and our data doesn't. That is why the Review Room asks for the player's confidence instead of pretending to predict it.`;
 
   // forest plot
   const names = { bowl: "Fielding team challenging", last_review: "Using its last challenge", middle: "Overs 7–15 (vs first 6)", death: "Overs 16–20 (vs first 6)", pos_4_7: "Middle-order batter (vs top 3)", pos_8_11: "Tail-end batter (vs top 3)", inn2: "Chasing team's innings", t20i: "Internationals (vs IPL)", other: "Other leagues (vs IPL)", season: "Each 4 seasons later", p_star: "Confidence needed (per +10 pts)", G: "Value of the call (per +10 pts)", bowl_x_death: "Fielding team, overs 16–20" };

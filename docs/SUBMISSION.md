@@ -14,10 +14,10 @@
 3. `3-cheat-sheet.png`: "The cheat sheet: how sure a player needs to be, by stage of the match."
 4. `4-review-room.png`: "Replay any real challenge: the win-chance line, the stakes, the bar, the verdict."
 5. `5-price-map.png`: "Every moment of a match: light = be fairly sure, dark = challenging is nearly free."
-6. `6-captains.png`: "Teams win challenges far more often than they need to: they should challenge more."
-7. `7-evidence.png`: "Tested on 2,813 matches the model had never seen."
-8. `8-team-audit.png`: "Team audit: how much win chance each team has gained from its own challenges."
-9. `9-method-and-limits.png`: "The method in one line, and what we don't claim."
+6. `6-findings.png`: "Teams win challenges far more often than they need to: they should challenge more."
+7. `7-team-audit.png`: "Team audit: how much win chance each team has gained from its own challenges."
+8. `8-model-tests.png`: "Tested on 2,813 matches the model had never seen: well calibrated, beats a textbook model."
+9. `9-method.png`: "Robustness checks, the method in one line, and what we don't claim."
 10. `10-mobile.png`: "Works on a phone: single-column layout."
 
 ---
